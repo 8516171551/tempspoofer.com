@@ -18,6 +18,20 @@
         <SolidColorBrush x:Key="AccentDeep" Color="#8CC0F2"/>
         <SolidColorBrush x:Key="Warn"      Color="#FBBF24"/>
 
+        <!-- Organic flowing lines texture — subtle brand topography overlay -->
+        <DrawingBrush x:Key="WavesBrush" TileMode="Tile" Viewport="0,0,480,480" ViewportUnits="Absolute" Opacity="0.065">
+            <DrawingBrush.Drawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Geometry>
+                        <PathGeometry Figures="M 0 80 C 60 30 180 130 240 80 S 420 30 480 80 M 0 200 C 80 150 160 250 240 200 S 400 150 480 200 M 0 320 C 60 270 170 370 240 320 S 420 270 480 320 M 0 440 C 90 390 150 490 240 440 S 400 390 480 440 M 120 0 C 70 60 170 150 120 240 S 70 400 120 480 M 280 0 C 330 80 230 180 280 260 S 320 420 280 480 M 400 0 C 350 70 450 180 400 260 S 350 420 400 480"/>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Pen>
+                        <Pen Thickness="28" LineJoin="Round" StartLineCap="Round" EndLineCap="Round" Brush="#B2D6F8"/>
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
         <Style TargetType="TextBlock">
             <Setter Property="FontFamily" Value="{StaticResource Poppins}"/>
             <Setter Property="Foreground" Value="{StaticResource Text}"/>

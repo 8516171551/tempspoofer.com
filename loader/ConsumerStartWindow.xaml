@@ -11,6 +11,10 @@
             <TranslateTransform Y="12"/>
         </Border.RenderTransform>
         <Grid>
+            <Border CornerRadius="10" ClipToBounds="True" IsHitTestVisible="False">
+                <Rectangle Fill="{StaticResource WavesBrush}"/>
+            </Border>
+            <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="32"/>
                 <RowDefinition Height="*"/>
@@ -47,6 +51,7 @@
                     </StackPanel>
                 </Border>
             </StackPanel>
+            </Grid>
         </Grid>
     </Border>
 

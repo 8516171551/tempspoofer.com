@@ -11,6 +11,10 @@
             <TranslateTransform Y="14"/>
         </Border.RenderTransform>
         <Grid>
+            <Border CornerRadius="10" ClipToBounds="True" IsHitTestVisible="False">
+                <Rectangle Fill="{StaticResource WavesBrush}"/>
+            </Border>
+            <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="32"/>
                 <RowDefinition Height="*"/>
@@ -68,6 +72,7 @@
                     <Hyperlink Click="BuyLink_Click" Foreground="{StaticResource Accent}" TextDecorations="None">Get a key</Hyperlink>
                 </TextBlock>
             </StackPanel>
+            </Grid>
         </Grid>
     </Border>
 

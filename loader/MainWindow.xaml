@@ -11,6 +11,10 @@
             <TranslateTransform Y="16"/>
         </Border.RenderTransform>
         <Grid>
+            <Border CornerRadius="10" ClipToBounds="True" IsHitTestVisible="False">
+                <Rectangle Fill="{StaticResource WavesBrush}"/>
+            </Border>
+            <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="32"/>
                 <RowDefinition Height="Auto"/>
@@ -132,8 +136,9 @@
                 <Border x:Name="ProgressBar" Background="{StaticResource Accent}" Height="4" HorizontalAlignment="Left" Width="0" CornerRadius="2"/>
             </Grid>
 
-            <!-- Success overlay -->
-            <Border x:Name="SuccessOverlay" Grid.RowSpan="7" Background="#0A0A0A" Opacity="0" IsHitTestVisible="False" CornerRadius="10">
+            </Grid>
+            <!-- Success overlay sits ABOVE the main content grid (and the waves underneath) -->
+            <Border x:Name="SuccessOverlay" Background="#0A0A0A" Opacity="0" IsHitTestVisible="False" CornerRadius="10">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <Border Width="76" Height="76" CornerRadius="38" Background="#052E16" BorderBrush="#16A34A" BorderThickness="2" Margin="0,0,0,18">
                         <TextBlock Text="✓" FontSize="42" Foreground="#4ADE80" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
