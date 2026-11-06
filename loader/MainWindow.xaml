@@ -213,12 +213,12 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="0" x:Name="CleanBtn" Style="{StaticResource GhostBtn}" Padding="0,12" Click="CleanBtn_Click" Margin="0,0,5,0" IsEnabled="False">
-                        <TextBlock x:Name="CleanBtnLabel" Text="1. CLEAN TRACES" Foreground="{StaticResource Text}" FontWeight="SemiBold" FontSize="13"/>
+                    <Button Grid.Column="0" x:Name="CleanBtn" Style="{StaticResource FlatBtn}" Padding="0,12" Click="CleanBtn_Click" Margin="0,0,5,0" IsEnabled="False">
+                        <TextBlock x:Name="CleanBtnLabel" Text="1. CLEAN TRACES" Foreground="#0A0A0A" FontWeight="SemiBold" FontSize="13"/>
                     </Button>
 
-                    <Button Grid.Column="1" x:Name="SpoofBtn" Style="{StaticResource FlatBtn}" Padding="0,12" Click="SpoofBtn_Click" Margin="5,0,0,0" IsEnabled="False">
-                        <TextBlock x:Name="SpoofBtnLabel" Text="2. SPOOF HWID" Foreground="#0A0A0A" FontWeight="SemiBold" FontSize="13"/>
+                    <Button Grid.Column="1" x:Name="SpoofBtn" Style="{StaticResource SolidBtn}" Padding="0,12" Click="SpoofBtn_Click" Margin="5,0,0,0" IsEnabled="False">
+                        <TextBlock x:Name="SpoofBtnLabel" Text="2. SPOOF HWID" Foreground="{StaticResource Text}" FontWeight="SemiBold" FontSize="13"/>
                     </Button>
                 </Grid>
 
