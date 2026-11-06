@@ -1,4 +1,3 @@
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -8,32 +7,26 @@ using System.Text.Json.Serialization;
 
 namespace TemporarySpoofer;
 
+// No cookies, no sessions. A license key is the only auth the loader
+// needs — we POST it with the machine's fake HWID to /api/licenses/claim
+// and the server decides whether to activate.
+
 public sealed class ApiClient
 {
     public const string BaseUrl = "https://tempspoofer.com";
 
-    private readonly CookieContainer _jar = new();
     private readonly HttpClient _http;
 
     public ApiClient()
     {
         var handler = new HttpClientHandler
         {
-            CookieContainer = _jar,
-            UseCookies = true,
+            UseCookies = false,
             AutomaticDecompression = DecompressionMethods.All,
         };
         _http = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
         _http.DefaultRequestHeaders.UserAgent.ParseAdd("TemporarySpooferLoader/1.0");
         _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    }
-
-    public async Task<LoginResult> LoginAsync(string email, string password)
-    {
-        var res = await _http.PostAsJsonAsync("/api/auth/login", new { email, password });
-        if (res.IsSuccessStatusCode) return new LoginResult(true, null);
-        var body = await SafeRead(res);
-        return new LoginResult(false, body?.Error ?? $"HTTP {(int)res.StatusCode}");
     }
 
     public async Task<ClaimResult> ClaimAsync(string key, string hwid)
@@ -42,9 +35,9 @@ public sealed class ApiClient
         var body = await SafeRead(res);
         if (!res.IsSuccessStatusCode)
         {
-            return new ClaimResult(false, body?.Error ?? $"HTTP {(int)res.StatusCode}", null);
+            return new ClaimResult(false, body?.Error ?? $"HTTP {(int)res.StatusCode}", null, null);
         }
-        return new ClaimResult(true, null, body?.ExpiresAt);
+        return new ClaimResult(true, null, body?.ExpiresAt, body?.Tier);
     }
 
     private static async Task<ApiBody?> SafeRead(HttpResponseMessage res)
@@ -63,8 +56,8 @@ public sealed class ApiClient
         [JsonPropertyName("error")]     public string? Error     { get; set; }
         [JsonPropertyName("expiresAt")] public string? ExpiresAt { get; set; }
         [JsonPropertyName("status")]    public string? Status    { get; set; }
+        [JsonPropertyName("tier")]      public string? Tier      { get; set; }
     }
 }
 
-public readonly record struct LoginResult(bool Ok, string? Error);
-public readonly record struct ClaimResult(bool Ok, string? Error, string? ExpiresAt);
+public readonly record struct ClaimResult(bool Ok, string? Error, string? ExpiresAt, string? Tier);

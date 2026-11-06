@@ -26,7 +26,7 @@ export default function LoginPage() {
         setErr(j.error ?? "Login failed");
         return;
       }
-      router.push("/dashboard");
+      router.push("/reseller");
       router.refresh();
     } finally {
       setBusy(false);
@@ -40,8 +40,9 @@ export default function LoginPage() {
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-orange-500"></span>
           Temporary Spoofer
         </Link>
-        <h1 className="text-2xl font-bold mb-1">Welcome back.</h1>
-        <p className="text-sm text-zinc-400 mb-6">Log in to see your passes and keys.</p>
+        <div className="text-xs text-orange-400 font-semibold uppercase mb-2">Reseller login</div>
+        <h1 className="text-2xl font-bold mb-1">Open your dashboard.</h1>
+        <p className="text-sm text-zinc-400 mb-6">Only resellers have accounts. Customers use their license key directly in the loader.</p>
 
         <form onSubmit={submit} className="space-y-4">
           <div>
@@ -59,7 +60,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 text-sm text-zinc-400 text-center">
-          No account? <Link href="/register" className="text-orange-400 hover:underline">Register</Link>
+          Not a reseller yet? <Link href="/#reseller" className="text-orange-400 hover:underline">See reseller plans →</Link>
         </div>
       </div>
     </div>

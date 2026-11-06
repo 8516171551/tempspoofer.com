@@ -27,7 +27,6 @@
                         <TextBlock Text="Temporary Spoofer" FontSize="11" FontWeight="SemiBold" Foreground="#A0A0A8" VerticalAlignment="Center"/>
                         <TextBlock Text="v1.0" FontSize="9" Foreground="#444" VerticalAlignment="Center" Margin="8,1,0,0"/>
                     </StackPanel>
-                    <TextBlock x:Name="SessionEmail" Text="" FontSize="10" Foreground="#666" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Style="{StaticResource ChromeBtn}" Content="_" Click="MinBtn_Click" FontWeight="Bold"/>
                         <Button Style="{StaticResource CloseBtn}" Content="X" Click="CloseBtn_Click" Foreground="#888" FontWeight="Bold"/>

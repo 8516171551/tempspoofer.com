@@ -4,7 +4,6 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { verifyPassword, signSession, SESSION_COOKIE } from "@/lib/auth";
 
-
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null) as { email?: string; password?: string } | null;
   if (!body?.email || !body?.password) {
@@ -13,7 +12,10 @@ export async function POST(req: Request) {
   const email = body.email.trim().toLowerCase();
   const rows = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
   const u = rows[0];
-  if (!u || !(await verifyPassword(body.password, u.passwordHash))) {
+  if (!u || !u.passwordHash) {
+    return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+  }
+  if (!(await verifyPassword(body.password, u.passwordHash))) {
     return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
   }
 

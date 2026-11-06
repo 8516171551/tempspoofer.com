@@ -1,13 +1,28 @@
+// Handles the two checkout flows:
+//   consumer → issue a fresh license key, email it, record purchase.
+//   reseller → create (or reuse) the user keyed by Stripe email, create
+//              the reseller row, issue a one-shot setup token, email it.
+
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import crypto from "crypto";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { db, schema } from "@/lib/db";
 import { newLicenseKey } from "@/lib/keys";
-import { CONSUMER_PRICING, type ConsumerTier } from "@/lib/pricing";
-
+import { CONSUMER_PRICING } from "@/lib/pricing";
+import { sendLicenseEmail, sendResellerSetupEmail } from "@/lib/email";
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+
+function randomToken(bytes = 24): string {
+  return crypto.randomBytes(bytes).toString("base64url");
+}
+
+function tierLabel(tier: string): string {
+  const p = CONSUMER_PRICING[tier as keyof typeof CONSUMER_PRICING];
+  return p?.name ?? tier;
+}
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
@@ -27,38 +42,56 @@ export async function POST(req: Request) {
 
   if (evt.type === "checkout.session.completed") {
     const session = evt.data.object as Stripe.Checkout.Session;
-    const uid = Number(session.metadata?.uid ?? 0);
     const kind = session.metadata?.kind;
     const tier = session.metadata?.tier;
-    if (!uid || !kind || !tier) return NextResponse.json({ ok: true });
+    const email = (session.customer_details?.email ?? session.customer_email ?? "").toLowerCase();
+
+    if (!kind || !tier || !email) {
+      return NextResponse.json({ ok: true, skipped: "missing metadata/email" });
+    }
 
     const exists = await db.select().from(schema.purchases).where(eq(schema.purchases.stripeSessionId, session.id)).limit(1);
-    if (exists.length > 0) return NextResponse.json({ ok: true });
-
-    await db.insert(schema.purchases).values({
-      userId: uid,
-      stripeSessionId: session.id,
-      kind,
-      tier,
-      amountCents: session.amount_total ?? 0,
-    });
+    if (exists.length > 0) {
+      return NextResponse.json({ ok: true, idempotent: true });
+    }
 
     if (kind === "consumer" && tier in CONSUMER_PRICING) {
+      const licenseKey = newLicenseKey();
+
       await db.insert(schema.licenses).values({
-        licenseKey: newLicenseKey(),
+        licenseKey,
         tier,
-        userId: uid,
+        email,
         status: "unused",
       });
+
+      await db.insert(schema.purchases).values({
+        email,
+        stripeSessionId: session.id,
+        kind: "consumer",
+        tier,
+        amountCents: session.amount_total ?? 0,
+        licenseKey,
+      });
+
+      await sendLicenseEmail(email, licenseKey, tierLabel(tier));
+      return NextResponse.json({ ok: true, delivered: "consumer" });
     }
 
     if (kind === "reseller") {
-      await db.update(schema.users).set({ isReseller: true }).where(eq(schema.users.id, uid));
-      const existingReseller = await db.select().from(schema.resellers).where(eq(schema.resellers.userId, uid)).limit(1);
-      if (existingReseller.length === 0) {
-        const slug = `r${uid}-${Math.random().toString(36).slice(2, 8)}`;
+      let user = (await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1))[0];
+      if (!user) {
+        user = (await db.insert(schema.users).values({ email, isReseller: true }).returning())[0];
+      } else {
+        await db.update(schema.users).set({ isReseller: true }).where(eq(schema.users.id, user.id));
+        user.isReseller = true;
+      }
+
+      const existingReseller = (await db.select().from(schema.resellers).where(eq(schema.resellers.userId, user.id)).limit(1))[0];
+      if (!existingReseller) {
+        const slug = `r${user.id}-${randomToken(4)}`;
         await db.insert(schema.resellers).values({
-          userId: uid,
+          userId: user.id,
           tier,
           slug,
           stripeSubscriptionId: session.subscription?.toString() ?? null,
@@ -69,18 +102,42 @@ export async function POST(req: Request) {
           tier,
           stripeSubscriptionId: session.subscription?.toString() ?? null,
           status: "active",
-        }).where(eq(schema.resellers.userId, uid));
+        }).where(eq(schema.resellers.userId, user.id));
       }
+
+      await db.insert(schema.purchases).values({
+        userId: user.id,
+        email,
+        stripeSessionId: session.id,
+        kind: "reseller",
+        tier,
+        amountCents: session.amount_total ?? 0,
+      });
+
+      // Only issue a setup token if they have no password yet. Returning
+      // resellers who just resubscribed already know how to log in.
+      if (!user.passwordHash) {
+        const token = randomToken(24);
+        const expiresAt = new Date(Date.now() + 48 * 3600 * 1000);
+        await db.insert(schema.setupTokens).values({
+          token,
+          userId: user.id,
+          expiresAt,
+        });
+        const origin = new URL(req.url).origin;
+        await sendResellerSetupEmail(email, `${origin}/setup?token=${token}`, tier);
+      }
+
+      return NextResponse.json({ ok: true, delivered: "reseller" });
     }
   }
 
   if (evt.type === "customer.subscription.deleted") {
     const sub = evt.data.object as Stripe.Subscription;
-    await db.update(schema.resellers).set({ status: "cancelled" }).where(eq(schema.resellers.stripeSubscriptionId, sub.id));
+    await db.update(schema.resellers)
+      .set({ status: "cancelled" })
+      .where(eq(schema.resellers.stripeSubscriptionId, sub.id));
   }
-
-  // Unused param hint for TS when ConsumerTier isn't imported elsewhere
-  void (0 as unknown as ConsumerTier | undefined);
 
   return NextResponse.json({ ok: true });
 }

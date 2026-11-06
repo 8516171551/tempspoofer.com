@@ -1,21 +1,13 @@
+// No session required: consumer purchases are anonymous, resellers also
+// buy BEFORE registering. Stripe collects email either way. The webhook
+// turns that email into either a license (consumer) or a user + setup
+// token (reseller).
+
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { currentSession } from "@/lib/session";
 import { CONSUMER_PRICING, RESELLER_PRICING, type ConsumerTier, type ResellerTier } from "@/lib/pricing";
 
-
-// Lazy sign-up path for consumer purchases:
-// A user who hits /buy without being logged in is bounced to /register first.
-// For resellers, /register?reseller=<tier> brings them here with session set.
-
 export async function GET(req: Request) {
-  const s = await currentSession();
-  if (!s) {
-    const url = new URL(req.url);
-    url.pathname = "/register";
-    return NextResponse.redirect(url);
-  }
-
   const u = new URL(req.url);
   const kind = u.searchParams.get("kind");
   const tier = u.searchParams.get("tier");
@@ -25,7 +17,7 @@ export async function GET(req: Request) {
     const p = CONSUMER_PRICING[tier as ConsumerTier];
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      customer_email: s.email,
+      billing_address_collection: "auto",
       line_items: [{
         price_data: {
           currency: "usd",
@@ -34,8 +26,8 @@ export async function GET(req: Request) {
         },
         quantity: 1,
       }],
-      metadata: { uid: String(s.uid), kind: "consumer", tier },
-      success_url: `${origin}/dashboard?paid=1`,
+      metadata: { kind: "consumer", tier },
+      success_url: `${origin}/receipt?session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/#pricing`,
     });
     return NextResponse.redirect(session.url!, { status: 303 });
@@ -45,7 +37,7 @@ export async function GET(req: Request) {
     const p = RESELLER_PRICING[tier as ResellerTier];
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      customer_email: s.email,
+      billing_address_collection: "auto",
       line_items: [{
         price_data: {
           currency: "usd",
@@ -55,8 +47,8 @@ export async function GET(req: Request) {
         },
         quantity: 1,
       }],
-      metadata: { uid: String(s.uid), kind: "reseller", tier },
-      success_url: `${origin}/reseller?welcome=1`,
+      metadata: { kind: "reseller", tier },
+      success_url: `${origin}/reseller/welcome?session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/#reseller`,
     });
     return NextResponse.redirect(session.url!, { status: 303 });

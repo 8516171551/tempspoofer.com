@@ -9,6 +9,7 @@ namespace TemporarySpoofer;
 public partial class MainWindow : Window
 {
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
+    private readonly ApiClient _api = new();
     private DateTime _startTime;
     private int _logLines;
 
@@ -21,9 +22,9 @@ public partial class MainWindow : Window
             var elapsed = DateTime.Now - _startTime;
             ElapsedText.Text = $"{(int)elapsed.TotalMinutes:D2}:{elapsed.Seconds:D2}";
         };
-        SessionEmail.Text = Session.Email ?? "";
         ProgressCount.Text = $"0 / {steps.Count}";
         Log($"Ready. {steps.Count} rotation steps loaded.");
+        Loaded += (_, _) => KeyBox.Focus();
     }
 
     private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
@@ -51,15 +52,10 @@ public partial class MainWindow : Window
 
     private async void SpoofBtn_Click(object sender, RoutedEventArgs e)
     {
-        var key = KeyBox.Text.Trim();
+        var key = KeyBox.Text.Trim().ToUpperInvariant();
         if (key.Length == 0 || key.StartsWith("TS-XXXX"))
         {
-            Log("ERROR  No license key entered.");
-            return;
-        }
-        if (Session.Api is null)
-        {
-            Log("ERROR  No API session. Restart the loader.");
+            Log("ERROR  Paste your license key first.");
             return;
         }
 
@@ -73,7 +69,7 @@ public partial class MainWindow : Window
 
         var hwid = SpoofEngine.FakeHwid();
         Log($"Posting claim for {key}");
-        var claim = await Session.Api.ClaimAsync(key, hwid);
+        var claim = await _api.ClaimAsync(key, hwid);
         if (!claim.Ok)
         {
             Log($"ERROR  {claim.Error}");

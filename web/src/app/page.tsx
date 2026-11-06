@@ -29,9 +29,9 @@ function Nav() {
           <a href="#features" className="hover:text-white transition">Features</a>
           <a href="#pricing" className="hover:text-white transition">Pricing</a>
           <a href="#reseller" className="hover:text-white transition">Reseller</a>
-          <Link href="/login" className="hover:text-white transition">Login</Link>
+          <Link href="/login" className="hover:text-white transition">Reseller login</Link>
         </nav>
-        <Link href="/register" className="btn btn-primary">Get started</Link>
+        <a href="#pricing" className="btn btn-primary">Get a key</a>
       </div>
     </header>
   );
@@ -49,10 +49,10 @@ function Hero() {
         Only when you need it.
       </h1>
       <p className="mt-6 text-lg text-zinc-400 max-w-2xl mx-auto">
-        Temporary Spoofer rotates your HWID for a fixed window — a day, a week, a month — then rolls back. No recurring subscription.
+        Pay once, get a key by email, paste it into the loader. No account, no subscription. The spoof rolls back when the window ends.
       </p>
       <div className="mt-10 flex items-center justify-center gap-3 flex-wrap">
-        <Link href="#pricing" className="btn btn-primary">See pricing</Link>
+        <a href="#pricing" className="btn btn-primary">See pricing</a>
         <a href="#features" className="btn btn-ghost">How it works</a>
       </div>
       <div className="mt-10 inline-block">
@@ -66,12 +66,12 @@ function Hero() {
 
 function Features() {
   const items = [
-    { title: "Per-session passes",   body: "Pay for exactly the window you need. 24 hours, 7 days, or 30 days." },
-    { title: "One-file loader",      body: "No installer. No dependencies. Download loader.exe, log in, click spoof." },
-    { title: "Tamper-aware",         body: "The loader checks itself before touching your identifiers." },
-    { title: "Rollback on expiry",   body: "When the pass ends the spoof reverts. No residue left behind." },
-    { title: "Reseller program",     body: "Sell under your own brand. Panel access and discord bot included at Pro." },
-    { title: "Windows 10 & 11",      body: "x64 only. Standard retail builds. No insider." },
+    { title: "No account to make",     body: "Buy, open your email, paste the key. That's it." },
+    { title: "Per-session passes",     body: "Pay for exactly the window you need. 24 hours, 7 days, or 30 days." },
+    { title: "One-file loader",        body: "No installer, no dependencies. Download loader.exe, paste your key, click spoof." },
+    { title: "Rollback on expiry",     body: "When the pass ends the spoof reverts. No residue left behind." },
+    { title: "Reseller program",       body: "Sell under your own brand. Panel access and Discord bot included at Pro." },
+    { title: "Windows 10 & 11",        body: "x64 only. Standard retail builds." },
   ];
   return (
     <section id="features" className="max-w-6xl mx-auto px-6 py-24">
@@ -97,7 +97,7 @@ function ConsumerPricing() {
     <section id="pricing" className="max-w-6xl mx-auto px-6 py-24">
       <div className="text-center mb-12">
         <h2 className="text-3xl sm:text-4xl font-bold mb-3">Pick your window.</h2>
-        <p className="text-zinc-400">One-time payment. Starts when you activate.</p>
+        <p className="text-zinc-400">One-time payment. No account. Key arrives in your email within seconds.</p>
       </div>
       <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
         {CONSUMER_ORDER.map((tier) => {
@@ -109,16 +109,19 @@ function ConsumerPricing() {
               <div className="text-sm text-zinc-400 mb-2">{p.name}</div>
               <div className="text-4xl font-extrabold mb-1">{fmtUsd(p.priceCents)}</div>
               <div className="text-sm text-zinc-500 mb-6">{p.blurb}</div>
-              <Link
+              <a
                 href={`/api/stripe/checkout?kind=consumer&tier=${tier}`}
                 className={`btn w-full ${highlight ? "btn-primary" : "btn-ghost"}`}
               >
                 Buy {p.name}
-              </Link>
+              </a>
             </div>
           );
         })}
       </div>
+      <p className="text-center text-xs text-zinc-500 mt-8">
+        Checkout via Stripe. We never see your card. The email you enter at Stripe is where we send your key.
+      </p>
     </section>
   );
 }
@@ -129,7 +132,9 @@ function Reseller() {
       <div className="text-center mb-12">
         <div className="inline-block price-badge mb-4">Reseller program</div>
         <h2 className="text-3xl sm:text-4xl font-bold mb-3">Sell under your own brand.</h2>
-        <p className="text-zinc-400 max-w-2xl mx-auto">Three monthly tiers. Keys, panel access, optional branding and Discord bot. Apply, pay, resell.</p>
+        <p className="text-zinc-400 max-w-2xl mx-auto">
+          Three monthly tiers. Keys, panel access, optional branding and Discord bot. Subscribe, then we'll email you a link to create your account.
+        </p>
       </div>
       <div className="grid md:grid-cols-3 gap-4">
         {RESELLER_ORDER.map((tier) => {
@@ -154,16 +159,19 @@ function Reseller() {
                 <Feat yes={p.features.discordBot}>Discord Bot</Feat>
                 <Feat yes={p.features.resellerHosting}>Reseller Hosting</Feat>
               </ul>
-              <Link
-                href={`/register?reseller=${tier}`}
+              <a
+                href={`/api/stripe/checkout?kind=reseller&tier=${tier}`}
                 className={`btn w-full ${p.highlight ? "btn-primary" : "btn-ghost"}`}
               >
-                Get started
-              </Link>
+                Subscribe
+              </a>
             </div>
           );
         })}
       </div>
+      <p className="text-center text-xs text-zinc-500 mt-8">
+        Already have a reseller account? <Link href="/login" className="text-orange-400 hover:underline">Log in →</Link>
+      </p>
     </section>
   );
 }
@@ -185,9 +193,9 @@ function Footer() {
           © 2026 Temporary Spoofer. Windows 10 / 11 only.
         </div>
         <div className="flex gap-6 text-sm text-zinc-400">
-          <Link href="/login" className="hover:text-white">Login</Link>
-          <Link href="/register" className="hover:text-white">Register</Link>
-          <a href="#reseller" className="hover:text-white">Reseller</a>
+          <Link href="/login" className="hover:text-white">Reseller login</Link>
+          <a href="#reseller" className="hover:text-white">Become a reseller</a>
+          <a href="#pricing" className="hover:text-white">Buy a pass</a>
         </div>
       </div>
     </footer>
