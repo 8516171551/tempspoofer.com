@@ -6,6 +6,14 @@
         Background="Transparent" AllowsTransparency="True"
         WindowStyle="None">
 
+    <Window.Resources>
+        <VisualBrush x:Key="PlaceholderBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+            <VisualBrush.Visual>
+                <TextBlock Text="TS-XXXX-XXXX-XXXX-XXXX" FontFamily="{StaticResource Mono}" FontSize="14" Foreground="#4B4B55"/>
+            </VisualBrush.Visual>
+        </VisualBrush>
+    </Window.Resources>
+
     <Border x:Name="Root" Background="{StaticResource Bg}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="12" Opacity="0">
         <Border.RenderTransform><TranslateTransform Y="14"/></Border.RenderTransform>
         <Grid>
@@ -71,15 +79,7 @@
                              Foreground="{StaticResource Text}" Background="Transparent" BorderThickness="0"
                              Padding="14,11" Text="" CaretBrush="{StaticResource Accent}"
                              SelectionBrush="{StaticResource AccentDeep}"
-                             GotFocus="KeyBox_GotFocus" LostFocus="KeyBox_LostFocus" TextChanged="KeyBox_TextChanged">
-                        <TextBox.Resources>
-                            <VisualBrush x:Key="PlaceholderBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
-                                <VisualBrush.Visual>
-                                    <TextBlock Text="TS-XXXX-XXXX-XXXX-XXXX" FontFamily="{StaticResource Mono}" FontSize="14" Foreground="#4B4B55"/>
-                                </VisualBrush.Visual>
-                            </VisualBrush>
-                        </TextBox.Resources>
-                    </TextBox>
+                             GotFocus="KeyBox_GotFocus" LostFocus="KeyBox_LostFocus" TextChanged="KeyBox_TextChanged"/>
                 </Border>
 
                 <TextBlock x:Name="StatusLine" Foreground="#F87171" FontSize="12" Margin="0,2,0,12" TextWrapping="Wrap" Visibility="Collapsed"/>

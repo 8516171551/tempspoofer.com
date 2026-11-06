@@ -64,7 +64,6 @@ public partial class MainWindow : Window
         Session.Status    = r.Status ?? "";
         Session.ExpiresAt = r.ExpiresAt;
         Session.Ip        = r.Ip;
-        IdBadge.Text      = r.Ip ?? "";
         FinishAuth();
     }
 
@@ -74,9 +73,6 @@ public partial class MainWindow : Window
         StatusText.Text = "Ready";
         StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent");
 
-        if (Session.LicenseKey is { Length: > 0 } k)
-            IdBadge.Text = ShortKey(k);
-
         if (!string.IsNullOrEmpty(Session.ExpiresAt))
             ExpiryText.Text = FormatExpiry(Session.ExpiresAt);
 
@@ -84,13 +80,6 @@ public partial class MainWindow : Window
         CleanBtn.IsEnabled = true;
         PipelineHint.Text  = $"Tier: {Session.Tier}  ·  {(Session.LicenseKey is null ? "IP auth" : "key auth")}";
     }
-
-    private static string ShortKey(string k) =>
-        string.IsNullOrEmpty(k)
-            ? ""
-            : k.Length > 16
-                ? k.Substring(0, 4) + "…" + k.Substring(k.Length - 4)
-                : k;
 
     private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
     {

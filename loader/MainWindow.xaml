@@ -159,7 +159,7 @@
                             <TextBlock Text="Temporary Spoofer" FontSize="12" FontWeight="SemiBold" Foreground="#C8C8CC" VerticalAlignment="Center"/>
                             <TextBlock Text="v1.2" FontSize="10" Foreground="#555" VerticalAlignment="Center" Margin="10,1,0,0"/>
                         </StackPanel>
-                        <TextBlock x:Name="IdBadge" FontSize="11" Foreground="#777" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource Mono}"/>
+                        <TextBlock Text="Welcome!" FontSize="11" Foreground="#9CA3AF" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Style="{StaticResource ChromeBtn}" Click="MinBtn_Click">
                                 <Path Data="{StaticResource IconMin}" Stroke="#AAA" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="14" Height="14" Stretch="Uniform"/>
