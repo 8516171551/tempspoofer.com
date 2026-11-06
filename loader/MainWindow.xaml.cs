@@ -159,7 +159,7 @@ public partial class MainWindow : Window
         {
             var model = _steps[i];
             model.State = StepState.Running;
-            StepScroller.ScrollToEnd();
+            await BringStepIntoView(model);
             var sw = Stopwatch.StartNew();
             await SpoofEngine.ExecuteAsync(steps[i], _ => { });
             sw.Stop();
@@ -203,7 +203,7 @@ public partial class MainWindow : Window
         {
             var model = _steps[i];
             model.State = StepState.Running;
-            StepScroller.ScrollToEnd();
+            await BringStepIntoView(model);
             var sw = Stopwatch.StartNew();
             var failed = false;
             try
@@ -230,6 +230,18 @@ public partial class MainWindow : Window
         ShowSuccess();
 
         SetBusy(false, cleanLabel: "Clean traces");
+    }
+
+    // Scrolls just enough to make the running card visible — never jams to end.
+    // StackPanel items generate synchronously, but we yield one dispatcher tick
+    // so the newly-updated row (icon + duration slot) finishes measuring first.
+    private async Task BringStepIntoView(StepItem model)
+    {
+        await Dispatcher.Yield(DispatcherPriority.Background);
+        if (StepList.ItemContainerGenerator.ContainerFromItem(model) is FrameworkElement el)
+        {
+            el.BringIntoView();
+        }
     }
 
     private void ShowSuccess()
