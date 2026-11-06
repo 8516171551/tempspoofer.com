@@ -1,8 +1,9 @@
 // irm https://tempspoofer.com/loader | iex
 //
-// FILELESS: downloads loader.exe as bytes straight into the PowerShell
-// process memory, then [Reflection.Assembly]::Load's it and invokes the
-// WPF entry point on an STA thread. Nothing is ever written to disk.
+// Fileless bootstrap: pulls loader.exe bytes into PowerShell memory,
+// Reflection.Assembly.Load it, invokes WPF entry on an STA thread.
+// Any crash bubbles into a MessageBox so the user sees it instead of a
+// silent exit.
 
 import { NextResponse } from "next/server";
 
@@ -14,9 +15,6 @@ Write-Host ''
 Write-Host '  Temporary Spoofer' -ForegroundColor White
 Write-Host '  -----------------' -ForegroundColor DarkGray
 
-# Reflection.Assembly.Load of a .NET Framework 4.8 PE needs the 'Desktop'
-# PowerShell edition (Windows PowerShell 5.1). PS 7 'Core' runs on .NET
-# Core and cannot host this assembly in-process.
 if ($PSVersionTable.PSEdition -ne 'Desktop') {
     Write-Host '  requires Windows PowerShell 5.1 (not PS 7).' -ForegroundColor Red
     Write-Host '  open powershell.exe (not pwsh.exe) and rerun.' -ForegroundColor DarkGray
@@ -29,25 +27,28 @@ Write-Host '  pulling to memory...' -ForegroundColor DarkGray
 try {
     $resp = Invoke-WebRequest -Uri 'https://tempspoofer.com/loader.exe' -UseBasicParsing
     $bytes = $resp.Content
-    if ($bytes -is [string]) { $bytes = [System.Text.Encoding]::GetEncoding(28591).GetBytes($bytes) }
+    if ($bytes -is [string]) { $bytes = [Text.Encoding]::GetEncoding(28591).GetBytes($bytes) }
 } catch {
     Write-Host "  download failed: $($_.Exception.Message)" -ForegroundColor Red
     return
 }
 Write-Host ('  loaded {0:N0} KB' -f ($bytes.Length / 1024)) -ForegroundColor DarkGray
 
-# Pre-load WPF assemblies so our managed exe can resolve them at reflection time.
+# Preload WPF so pack URIs + XAML parser can resolve everything.
 Add-Type -AssemblyName PresentationFramework | Out-Null
 Add-Type -AssemblyName PresentationCore      | Out-Null
 Add-Type -AssemblyName WindowsBase           | Out-Null
 Add-Type -AssemblyName System.Xaml           | Out-Null
 
 try {
-    $asm = [System.Reflection.Assembly]::Load($bytes)
+    $asm = [Reflection.Assembly]::Load($bytes)
 } catch {
     Write-Host "  assembly load failed: $($_.Exception.Message)" -ForegroundColor Red
     return
 }
+
+# Point WPF's pack URI resolver at our in-memory assembly.
+try { [Windows.Application]::ResourceAssembly = $asm } catch { }
 
 $entry = $asm.EntryPoint
 if ($null -eq $entry) {
@@ -58,15 +59,36 @@ if ($null -eq $entry) {
 Write-Host '  launching...' -ForegroundColor Green
 Write-Host ''
 
-# WPF requires STA; run the entry point on a dedicated STA thread so this
-# works whether the host shell is STA or MTA.
-$thread = [System.Threading.Thread]::new([System.Threading.ThreadStart]{
-    try { $entry.Invoke($null, $null) } catch { Write-Host $_.Exception.Message -ForegroundColor Red }
+# Script-scope slot the STA thread can leak its exception through.
+$script:TsLoaderError = $null
+
+$thread = [Threading.Thread]::new([Threading.ThreadStart]{
+    try {
+        $entry.Invoke($null, $null)
+    } catch {
+        $script:TsLoaderError = $_.Exception
+        $msg = $_.Exception
+        while ($msg.InnerException) { $msg = $msg.InnerException }
+        try {
+            [Windows.MessageBox]::Show(
+                $msg.ToString(),
+                'Temporary Spoofer — crash',
+                [Windows.MessageBoxButton]::OK,
+                [Windows.MessageBoxImage]::Error
+            ) | Out-Null
+        } catch { }
+    }
 })
-$thread.SetApartmentState([System.Threading.ApartmentState]::STA)
+$thread.SetApartmentState([Threading.ApartmentState]::STA)
 $thread.IsBackground = $false
 $thread.Start()
 $thread.Join()
+
+if ($script:TsLoaderError) {
+    Write-Host ''
+    Write-Host '  crashed:' -ForegroundColor Red
+    Write-Host ('  ' + $script:TsLoaderError.ToString().Split("\`n")[0]) -ForegroundColor DarkGray
+}
 `;
 
 export async function GET() {

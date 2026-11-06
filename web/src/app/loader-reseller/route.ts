@@ -1,7 +1,7 @@
 // irm https://tempspoofer.com/loader-reseller | iex
 //
-// Same fileless pattern as /loader, but pulls the reseller build (key
-// login instead of IP auto-login). Zero disk touch.
+// Reseller fileless bootstrap. Same pattern as /loader but pulls the
+// key-login build.
 
 import { NextResponse } from "next/server";
 
@@ -25,7 +25,7 @@ Write-Host '  pulling to memory...' -ForegroundColor DarkGray
 try {
     $resp = Invoke-WebRequest -Uri 'https://tempspoofer.com/loader-reseller.exe' -UseBasicParsing
     $bytes = $resp.Content
-    if ($bytes -is [string]) { $bytes = [System.Text.Encoding]::GetEncoding(28591).GetBytes($bytes) }
+    if ($bytes -is [string]) { $bytes = [Text.Encoding]::GetEncoding(28591).GetBytes($bytes) }
 } catch {
     Write-Host "  download failed: $($_.Exception.Message)" -ForegroundColor Red
     return
@@ -38,11 +38,13 @@ Add-Type -AssemblyName WindowsBase           | Out-Null
 Add-Type -AssemblyName System.Xaml           | Out-Null
 
 try {
-    $asm = [System.Reflection.Assembly]::Load($bytes)
+    $asm = [Reflection.Assembly]::Load($bytes)
 } catch {
     Write-Host "  assembly load failed: $($_.Exception.Message)" -ForegroundColor Red
     return
 }
+
+try { [Windows.Application]::ResourceAssembly = $asm } catch { }
 
 $entry = $asm.EntryPoint
 if ($null -eq $entry) {
@@ -53,13 +55,35 @@ if ($null -eq $entry) {
 Write-Host '  launching...' -ForegroundColor Green
 Write-Host ''
 
-$thread = [System.Threading.Thread]::new([System.Threading.ThreadStart]{
-    try { $entry.Invoke($null, $null) } catch { Write-Host $_.Exception.Message -ForegroundColor Red }
+$script:TsLoaderError = $null
+
+$thread = [Threading.Thread]::new([Threading.ThreadStart]{
+    try {
+        $entry.Invoke($null, $null)
+    } catch {
+        $script:TsLoaderError = $_.Exception
+        $msg = $_.Exception
+        while ($msg.InnerException) { $msg = $msg.InnerException }
+        try {
+            [Windows.MessageBox]::Show(
+                $msg.ToString(),
+                'Temporary Spoofer — crash',
+                [Windows.MessageBoxButton]::OK,
+                [Windows.MessageBoxImage]::Error
+            ) | Out-Null
+        } catch { }
+    }
 })
-$thread.SetApartmentState([System.Threading.ApartmentState]::STA)
+$thread.SetApartmentState([Threading.ApartmentState]::STA)
 $thread.IsBackground = $false
 $thread.Start()
 $thread.Join()
+
+if ($script:TsLoaderError) {
+    Write-Host ''
+    Write-Host '  crashed:' -ForegroundColor Red
+    Write-Host ('  ' + $script:TsLoaderError.ToString().Split("\`n")[0]) -ForegroundColor DarkGray
+}
 `;
 
 export async function GET() {
