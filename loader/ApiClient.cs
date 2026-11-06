@@ -29,6 +29,17 @@ public sealed class ApiClient
         _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
+    public async Task<ValidateResult> ValidateAsync(string key)
+    {
+        var res = await _http.PostAsJsonAsync("/api/licenses/validate", new { key });
+        var body = await SafeRead(res);
+        if (!res.IsSuccessStatusCode)
+        {
+            return new ValidateResult(false, body?.Error ?? $"HTTP {(int)res.StatusCode}", null, null, null);
+        }
+        return new ValidateResult(true, null, body?.Tier, body?.Status, body?.ExpiresAt);
+    }
+
     public async Task<ClaimResult> ClaimAsync(string key, string hwid)
     {
         var res = await _http.PostAsJsonAsync("/api/licenses/claim", new { key, hwid });
@@ -61,3 +72,4 @@ public sealed class ApiClient
 }
 
 public readonly record struct ClaimResult(bool Ok, string? Error, string? ExpiresAt, string? Tier);
+public readonly record struct ValidateResult(bool Ok, string? Error, string? Tier, string? Status, string? ExpiresAt);

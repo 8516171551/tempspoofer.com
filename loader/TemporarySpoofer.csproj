@@ -28,9 +28,8 @@
     <Resource Include="Fonts\*.ttf" />
   </ItemGroup>
 
-  <!-- Legacy code from the TraceCleaner scaffold — not compiled into the new build. -->
+  <!-- AssemblyInfo belongs to the prior scaffold; Main.cs provides attributes now. -->
   <ItemGroup>
-    <Compile Remove="CleaningEngine.cs" />
     <Compile Remove="AssemblyInfo.cs" />
   </ItemGroup>
 

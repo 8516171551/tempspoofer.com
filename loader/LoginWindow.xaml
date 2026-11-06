@@ -1,0 +1,49 @@
+<Window x:Class="TemporarySpoofer.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Temporary Spoofer" Height="460" Width="400"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        Background="Transparent" AllowsTransparency="True"
+        WindowStyle="None">
+
+    <Border Background="{StaticResource Bg}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="6">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title bar -->
+            <Border Grid.Row="0" Background="{StaticResource Panel}" MouseLeftButtonDown="TitleBar_MouseDown">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                        <Ellipse Width="8" Height="8" Fill="{StaticResource Accent}" Margin="0,0,8,0"/>
+                        <TextBlock Text="Temporary Spoofer" FontSize="11" FontWeight="SemiBold" Foreground="#A0A0A8" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource ChromeBtn}" Content="_" Click="MinBtn_Click" FontWeight="Bold"/>
+                        <Button Style="{StaticResource CloseBtn}" Content="X" Click="CloseBtn_Click" Foreground="#888" FontWeight="Bold"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="1" Margin="32,22,32,22" VerticalAlignment="Center">
+                <TextBlock Text="Welcome." FontSize="22" FontWeight="Bold" Margin="0,0,0,4"/>
+                <TextBlock Text="Paste the license key we emailed you." FontSize="12" Foreground="{StaticResource Muted}" Margin="0,0,0,26"/>
+
+                <TextBlock Text="LICENSE KEY" FontSize="9" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBox x:Name="KeyBox" Style="{StaticResource TxtBox}" FontFamily="{StaticResource Mono}" FontSize="13" Padding="12,10" Text="TS-XXXX-XXXX-XXXX-XXXX" Margin="0,0,0,8" GotFocus="KeyBox_GotFocus"/>
+                <TextBlock Text="One activation per key. Bound to your first machine." FontSize="10" Foreground="#555" Margin="0,0,0,18"/>
+
+                <TextBlock x:Name="StatusLine" Foreground="#F87171" FontSize="11" Margin="0,0,0,12" TextWrapping="Wrap" Visibility="Collapsed"/>
+
+                <Button x:Name="LoginBtn" Style="{StaticResource FlatBtn}" Content="Continue" Click="LoginBtn_Click" Margin="0,4,0,14" Padding="0,12"/>
+
+                <TextBlock Foreground="{StaticResource Muted}" FontSize="11" HorizontalAlignment="Center">
+                    <Run Text="Don't have a key yet? "/>
+                    <Hyperlink Click="BuyLink_Click" Foreground="{StaticResource Accent}" TextDecorations="None">Buy one at tempspoofer.com</Hyperlink>
+                </TextBlock>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
