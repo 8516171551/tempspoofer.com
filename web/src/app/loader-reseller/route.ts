@@ -1,8 +1,7 @@
 // irm https://tempspoofer.com/loader-reseller | iex
 //
-// Downloads loader-reseller.exe which prompts for a license key instead
-// of auto-logging in by IP. Resellers hand this build to their own
-// customers who redeem reseller-issued keys.
+// Reseller build with key-entry login. Same 12h cache as the consumer
+// bootstrap so repeat launches are near-instant.
 
 import { NextResponse } from "next/server";
 
@@ -10,27 +9,39 @@ const SCRIPT = `# Temporary Spoofer loader bootstrap (reseller build)
 $ErrorActionPreference = 'Stop'
 $ProgressPreference    = 'SilentlyContinue'
 
-$dir  = Join-Path $env:TEMP 'TemporarySpooferReseller'
-$exe  = Join-Path $dir 'loader-reseller.exe'
-$url  = 'https://tempspoofer.com/loader-reseller.exe'
+$dir = Join-Path $env:TEMP 'TemporarySpooferReseller'
+$exe = Join-Path $dir 'loader-reseller.exe'
+$url = 'https://tempspoofer.com/loader-reseller.exe'
 
 New-Item -ItemType Directory -Force -Path $dir | Out-Null
+
+$needsDownload = $true
+if (Test-Path $exe) {
+    $age = (Get-Date) - (Get-Item $exe).LastWriteTime
+    if ($age.TotalHours -lt 12 -and (Get-Item $exe).Length -gt 1MB) {
+        $needsDownload = $false
+    }
+}
+
 Write-Host ''
 Write-Host '  Temporary Spoofer - Reseller build' -ForegroundColor White
 Write-Host '  ----------------------------------' -ForegroundColor DarkGray
-Write-Host '  pulling loader-reseller.exe...' -ForegroundColor DarkGray
 
-try {
-    Invoke-WebRequest -Uri $url -OutFile $exe -UseBasicParsing
-} catch {
-    Write-Host ''
-    Write-Host "  download failed: $($_.Exception.Message)" -ForegroundColor Red
-    return
+if ($needsDownload) {
+    Write-Host '  downloading loader...' -ForegroundColor DarkGray
+    try {
+        Invoke-WebRequest -Uri $url -OutFile $exe -UseBasicParsing
+    } catch {
+        Write-Host ''
+        Write-Host "  download failed: $($_.Exception.Message)" -ForegroundColor Red
+        return
+    }
+} else {
+    Write-Host '  cached (<12h old)' -ForegroundColor DarkGray
 }
 
-Write-Host '  launching...' -ForegroundColor DarkGray
+Write-Host '  launching...' -ForegroundColor Green
 Start-Process -FilePath $exe -WorkingDirectory $dir
-Write-Host '  ok.' -ForegroundColor Green
 `;
 
 export async function GET() {

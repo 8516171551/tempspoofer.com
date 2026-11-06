@@ -9,9 +9,9 @@ public partial class App : Application
         base.OnStartup(e);
         Window w;
 #if RESELLER
-        w = new LoginWindow();        // key entry (reseller build)
+        w = new LoginWindow();           // key entry (reseller build)
 #else
-        w = new ConsumerStartWindow();   // IP auto-login (consumer build)
+        w = new MainWindow();            // consumer: straight to main; auth runs in background
 #endif
         MainWindow = w;
         w.Show();

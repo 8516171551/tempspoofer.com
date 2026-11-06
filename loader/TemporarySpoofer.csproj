@@ -18,9 +18,14 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <!-- Compression ON for small download; R2R ON for fast JIT once extracted;
+         TieredCompilation + QuickJit on by default. Combined with the PS
+         bootstrap's 12h cache, subsequent runs are effectively instant. -->
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <TieredCompilation>true</TieredCompilation>
+    <TieredPGO>true</TieredPGO>
     <DebugType>embedded</DebugType>
-    <PublishReadyToRun>false</PublishReadyToRun>
     <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
 
