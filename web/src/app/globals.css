@@ -16,6 +16,7 @@
   --panel: #111113;
   --panel-2: #17171a;
   --border: #26262c;
+  --border-soft: #1a1a1f;
   --text: #f4f4f5;
   --muted: #a1a1aa;
   --accent: #B2D6F8;
@@ -27,24 +28,48 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 a { color: inherit; text-decoration: none; }
 
+/* ==== Buttons ==== */
 .btn {
+  position: relative;
   display: inline-flex; align-items: center; justify-content: center;
   padding: 11px 18px; font-weight: 600; font-size: 14px;
   border-radius: 10px; cursor: pointer; border: 1px solid transparent;
-  transition: transform .08s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+  overflow: hidden;
+  transition: transform .14s cubic-bezier(.2,.9,.2,1),
+              background .22s ease, border-color .22s ease, box-shadow .22s ease,
+              filter .22s ease;
+  will-change: transform;
 }
-.btn:active { transform: translateY(1px); }
+.btn:hover  { transform: translateY(-1px); }
+.btn:active { transform: translateY(1px); transition-duration: .06s; }
 
 .btn-primary {
   background: linear-gradient(180deg, #CCE4FA 0%, #B2D6F8 100%);
   color: #0a0a0a;
-  box-shadow: 0 1px 0 rgba(255,255,255,.4) inset, 0 8px 24px rgba(178,214,248,.18);
+  box-shadow: 0 1px 0 rgba(255,255,255,.4) inset,
+              0 8px 24px rgba(178,214,248,.18);
 }
-.btn-primary:hover { filter: brightness(1.04); box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 10px 28px rgba(178,214,248,.28); }
+.btn-primary:hover {
+  filter: brightness(1.04);
+  box-shadow: 0 1px 0 rgba(255,255,255,.5) inset,
+              0 12px 32px rgba(178,214,248,.34);
+}
+/* Shine sweep on hover */
+.btn-primary::after {
+  content: "";
+  position: absolute; top: 0; left: -120%;
+  width: 60%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent);
+  transform: skewX(-18deg);
+  transition: left .7s cubic-bezier(.2,.9,.2,1);
+  pointer-events: none;
+}
+.btn-primary:hover::after { left: 140%; }
 
 .btn-ghost {
   background: transparent; color: var(--text);
@@ -52,12 +77,24 @@ a { color: inherit; text-decoration: none; }
 }
 .btn-ghost:hover { background: #1b1b1f; border-color: #3a3a44; }
 
+/* ==== Cards ==== */
 .card {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 14px;
+  transition: transform .28s cubic-bezier(.2,.9,.2,1),
+              border-color .28s ease, box-shadow .28s ease, background .28s ease;
+  will-change: transform;
+}
+.card.lift:hover {
+  transform: translateY(-4px);
+  border-color: rgba(178,214,248,.4);
+  box-shadow: 0 18px 48px -18px rgba(178,214,248,.28),
+              0 0 0 1px rgba(178,214,248,.18) inset;
+  background: #121216;
 }
 
+/* ==== Inputs ==== */
 .input {
   background: #0f0f12;
   border: 1px solid var(--border);
@@ -67,26 +104,49 @@ a { color: inherit; text-decoration: none; }
   width: 100%;
   font-size: 14px;
   outline: none;
-  transition: border-color .18s ease, box-shadow .18s ease;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
+.input:hover { border-color: #3a3a44; }
 .input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(178,214,248,.22);
+  box-shadow: 0 0 0 4px rgba(178,214,248,.22);
+  background: #101016;
 }
 
-/* "Organic flowing lines" — subtle topographic texture on dark surfaces.
-   Layered on top of the two radial brand hotspots for depth. Tile is
-   480x480 and seams match at both ends so repeat looks continuous. */
+/* ==== Background: squared grid + drifting glows ==== */
 .grid-pattern {
+  position: relative;
   background-color: #0a0a0a;
+  isolation: isolate;
+}
+.grid-pattern::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -2;
   background-image:
-    radial-gradient(circle at 20% 10%, rgba(178,214,248,.09), transparent 44%),
-    radial-gradient(circle at 80% 30%, rgba(204,228,250,.055), transparent 48%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 480'><g fill='none' stroke='%23B2D6F8' stroke-width='28' stroke-linecap='round' stroke-linejoin='round' opacity='0.055'><path d='M 0 80 C 60 30 180 130 240 80 S 420 30 480 80'/><path d='M 0 200 C 80 150 160 250 240 200 S 400 150 480 200'/><path d='M 0 320 C 60 270 170 370 240 320 S 420 270 480 320'/><path d='M 0 440 C 90 390 150 490 240 440 S 400 390 480 440'/><path d='M 120 0 C 70 60 170 150 120 240 S 70 400 120 480'/><path d='M 280 0 C 330 80 230 180 280 260 S 320 420 280 480'/><path d='M 400 0 C 350 70 450 180 400 260 S 350 420 400 480'/></g></svg>");
-  background-size: auto, auto, 480px 480px;
-  background-repeat: no-repeat, no-repeat, repeat;
+    linear-gradient(to right,  rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse at 50% 30%, #000 40%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 40%, transparent 85%);
+  pointer-events: none;
+}
+.grid-pattern::after {
+  content: "";
+  position: fixed; inset: 0; z-index: -1;
+  background-image:
+    radial-gradient(600px 420px at 18% 12%, rgba(178,214,248,.22), transparent 70%),
+    radial-gradient(520px 380px at 82% 28%, rgba(140,192,242,.14), transparent 70%),
+    radial-gradient(520px 380px at 70% 85%, rgba(178,214,248,.10), transparent 72%);
+  animation: glowDrift 22s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes glowDrift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-24px, 14px, 0) scale(1.04); }
+  100% { transform: translate3d(22px, -18px, 0) scale(1.02); }
 }
 
+/* ==== Pricing badge ==== */
 .price-badge {
   background: linear-gradient(90deg, #B2D6F8, #CCE4FA);
   color: #0a0a0a;
@@ -96,10 +156,12 @@ a { color: inherit; text-decoration: none; }
   font-weight: 700;
   letter-spacing: .3px;
   text-transform: uppercase;
+  box-shadow: 0 6px 18px rgba(178,214,248,.22);
 }
 
-.chk { color: #22c55e; }
-.cross { color: #52525b; }
+/* ==== Feature check / cross tokens ==== */
+.chk   { color: #22c55e; display: inline-flex; width: 16px; height: 16px; }
+.cross { color: #52525b; display: inline-flex; width: 16px; height: 16px; }
 
 ::selection { background: rgba(178,214,248,.45); color: #0a0a0a; }
 
@@ -107,3 +169,55 @@ a { color: inherit; text-decoration: none; }
 .bg-brand { background-color: var(--accent); }
 .text-brand { color: var(--accent); }
 .border-brand { border-color: var(--accent); }
+
+/* ==== Reveal / enter animations (pure CSS, run on mount) ==== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(.94); }
+  70%  { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.reveal   { animation: fadeUp .6s cubic-bezier(.2,.9,.2,1) both; }
+.reveal-fast { animation: fadeUp .4s cubic-bezier(.2,.9,.2,1) both; }
+.reveal-fade { animation: fadeIn .7s ease-out both; }
+.reveal-pop  { animation: popIn  .5s cubic-bezier(.2,.9,.2,1) both; }
+.d-50  { animation-delay: .05s; }
+.d-100 { animation-delay: .1s;  }
+.d-150 { animation-delay: .15s; }
+.d-200 { animation-delay: .2s;  }
+.d-250 { animation-delay: .25s; }
+.d-300 { animation-delay: .3s;  }
+.d-400 { animation-delay: .4s;  }
+.d-500 { animation-delay: .5s;  }
+
+/* Nav link underline sweep */
+.navlink {
+  position: relative;
+  padding-bottom: 3px;
+  transition: color .18s ease;
+}
+.navlink::after {
+  content: "";
+  position: absolute; left: 0; right: 100%; bottom: 0;
+  height: 1.5px; background: var(--accent);
+  transition: right .28s cubic-bezier(.2,.9,.2,1);
+}
+.navlink:hover { color: #fff; }
+.navlink:hover::after { right: 0; }
+
+/* Quiet motion for folks who ask */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  .grid-pattern::after { animation: none; }
+}

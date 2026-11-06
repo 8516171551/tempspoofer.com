@@ -34,8 +34,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="grid-pattern min-h-screen flex items-center justify-center px-6">
-      <div className="card p-8 w-full max-w-md">
+    <div className="grid-pattern min-h-screen flex items-center justify-center px-5 sm:px-6">
+      <div className="card lift p-7 sm:p-8 w-full max-w-md reveal">
         <Link href="/" className="flex items-center gap-2 font-bold mb-8">
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300"></span>
           Temporary Spoofer
@@ -60,7 +60,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 text-sm text-zinc-400 text-center">
-          Not a reseller yet? <Link href="/#reseller" className="text-brand-300 hover:underline">See reseller plans →</Link>
+          Not a reseller yet? <Link href="/#reseller" className="text-brand-300 hover:underline">See reseller plans</Link>
         </div>
       </div>
     </div>

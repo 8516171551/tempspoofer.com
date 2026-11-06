@@ -37,8 +37,8 @@ export default async function ReceiptPage({ searchParams }: { searchParams: Prom
   }
 
   return (
-    <div className="grid-pattern min-h-screen flex items-center justify-center px-6">
-      <div className="card p-8 w-full max-w-lg">
+    <div className="grid-pattern min-h-screen flex items-center justify-center px-5 sm:px-6">
+      <div className="card lift p-7 sm:p-8 w-full max-w-lg reveal">
         <Link href="/" className="flex items-center gap-2 font-bold mb-8">
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand"></span>
           Temporary Spoofer

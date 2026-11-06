@@ -47,8 +47,8 @@ function SetupInner() {
 
   if (!token) {
     return (
-      <div className="grid-pattern min-h-screen flex items-center justify-center px-6">
-        <div className="card p-8 w-full max-w-md text-center">
+      <div className="grid-pattern min-h-screen flex items-center justify-center px-5 sm:px-6">
+        <div className="card lift p-7 sm:p-8 w-full max-w-md text-center reveal">
           <h1 className="text-2xl font-bold mb-2">Invalid setup link.</h1>
           <p className="text-sm text-zinc-400 mb-6">The link is missing its token. Use the exact link we emailed you after checkout.</p>
           <Link href="/" className="btn btn-primary">Back to home</Link>
@@ -58,8 +58,8 @@ function SetupInner() {
   }
 
   return (
-    <div className="grid-pattern min-h-screen flex items-center justify-center px-6">
-      <div className="card p-8 w-full max-w-md">
+    <div className="grid-pattern min-h-screen flex items-center justify-center px-5 sm:px-6">
+      <div className="card lift p-7 sm:p-8 w-full max-w-md reveal">
         <Link href="/" className="flex items-center gap-2 font-bold mb-8">
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300"></span>
           Temporary Spoofer

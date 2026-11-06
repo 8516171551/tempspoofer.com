@@ -35,7 +35,7 @@ export function GenerateKeysForm({ infinite }: { infinite: boolean }) {
 
   return (
     <form onSubmit={submit} className="flex items-end gap-3 flex-wrap">
-      <div>
+      <div className="min-w-[140px]">
         <label className="text-xs text-zinc-400 mb-1 block">Tier</label>
         <select className="input" value={tier} onChange={(e) => setTier(e.target.value)}>
           <option value="day">Day Pass</option>
@@ -43,7 +43,7 @@ export function GenerateKeysForm({ infinite }: { infinite: boolean }) {
           <option value="month">Month Pass</option>
         </select>
       </div>
-      <div>
+      <div className="min-w-[160px]">
         <label className="text-xs text-zinc-400 mb-1 block">Count (max {max})</label>
         <input
           className="input"

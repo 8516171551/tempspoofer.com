@@ -44,13 +44,13 @@ export default async function ResellerPage() {
           <code className="bg-[#111113] border border-[#26262c] rounded px-2 py-0.5 font-mono text-xs">{reseller.slug}</code>
         </p>
 
-        <div className="grid sm:grid-cols-3 gap-4 mb-6">
-          <Stat label="Total keys issued" value={totalKeys.toString()} />
-          <Stat label="Active" value={activeKeys.toString()} />
-          <Stat label="Unused" value={unusedKeys.toString()} />
+        <div className="grid sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+          <Stat label="Total keys issued" value={totalKeys.toString()} delay="d-50" />
+          <Stat label="Active"            value={activeKeys.toString()} delay="d-100" />
+          <Stat label="Unused"            value={unusedKeys.toString()} delay="d-150" />
         </div>
 
-        <div className="card p-6 mb-8 border-brand-300/40">
+        <div className="card lift p-5 sm:p-6 mb-8 border-brand-300/40 reveal d-200">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <div className="text-xs text-brand-300 font-semibold uppercase mb-1">Reseller loader (key-auth)</div>
@@ -69,8 +69,8 @@ export default async function ResellerPage() {
           </div>
         </div>
 
-        <div className="card p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="card lift p-5 sm:p-6 mb-6 reveal d-250">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <h2 className="font-semibold">Generate keys</h2>
             <span className="text-xs text-zinc-500">
               {plan.features.infiniteKeys ? "Infinite keys" : `${plan.features.discountCoupon}% coupon tier`}
@@ -80,7 +80,7 @@ export default async function ResellerPage() {
         </div>
 
         {plan.features.branding && (
-          <div className="card p-6 mb-6 border-brand-200/30">
+          <div className="card lift p-5 sm:p-6 mb-6 border-brand-200/30 reveal d-300">
             <div className="text-xs text-brand-200 font-semibold uppercase mb-2">Branding (Pro)</div>
             <p className="text-sm text-zinc-400">
               Your keys can be delivered under your own brand name. Contact support to configure your reseller storefront and loader skin.
@@ -88,7 +88,7 @@ export default async function ResellerPage() {
           </div>
         )}
         {plan.features.discordBot && (
-          <div className="card p-6 mb-6 border-brand-400/30">
+          <div className="card lift p-5 sm:p-6 mb-6 border-brand-400/30 reveal d-300">
             <div className="text-xs text-brand-400 font-semibold uppercase mb-2">Discord bot (Pro)</div>
             <p className="text-sm text-zinc-400">
               Invite the Temporary Spoofer bot to your server to issue keys via slash command. Contact support for your invite link.
@@ -96,7 +96,7 @@ export default async function ResellerPage() {
           </div>
         )}
 
-        <div className="card p-6">
+        <div className="card lift p-5 sm:p-6 reveal d-400">
           <h2 className="font-semibold mb-4">Keys</h2>
           {keys.length === 0 ? (
             <div className="text-sm text-zinc-500 py-6 text-center">No keys generated yet.</div>
@@ -141,9 +141,9 @@ export default async function ResellerPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, delay = "" }: { label: string; value: string; delay?: string }) {
   return (
-    <div className="card p-5">
+    <div className={`card lift p-5 reveal ${delay}`}>
       <div className="text-xs text-zinc-500 uppercase mb-1">{label}</div>
       <div className="text-2xl font-bold">{value}</div>
     </div>
@@ -158,12 +158,12 @@ function TopBar({ email }: { email: string }) {
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300"></span>
           Temporary Spoofer
         </Link>
-        <nav className="flex items-center gap-5 text-sm">
-          <Link href="/dashboard" className="hover:text-white">Dashboard</Link>
-          <Link href="/reseller" className="text-white font-semibold">Reseller</Link>
-          <span className="text-zinc-500 hidden sm:inline">{email}</span>
+        <nav className="flex items-center gap-4 sm:gap-5 text-sm">
+          <Link href="/dashboard" className="navlink hidden sm:inline">Dashboard</Link>
+          <Link href="/reseller"  className="text-white font-semibold">Reseller</Link>
+          <span className="text-zinc-500 hidden md:inline">{email}</span>
           <form action="/api/auth/logout" method="post">
-            <button type="submit" className="btn btn-ghost">Logout</button>
+            <button type="submit" className="btn btn-ghost text-[13px] px-3 py-2">Logout</button>
           </form>
         </nav>
       </div>
