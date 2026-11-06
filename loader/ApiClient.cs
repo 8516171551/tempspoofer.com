@@ -1,88 +1,132 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace TemporarySpoofer;
 
+// net48-friendly HTTP client. No System.Text.Json / Http.Json dependency —
+// the API only ever returns flat JSON with half a dozen string fields, so
+// a tiny regex extractor is enough and keeps the loader exe at ~500 KB.
 public sealed class ApiClient
 {
     public const string BaseUrl = "https://tempspoofer.com";
-
     private readonly HttpClient _http;
 
     public ApiClient()
     {
+        // Force TLS 1.2/1.3 — net48 defaults to older protocols that tempspoofer.com refuses.
+        try { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; } catch { }
+        try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)12288; /* Tls13 */ } catch { }
+
         var handler = new HttpClientHandler
         {
             UseCookies = false,
-            AutomaticDecompression = DecompressionMethods.All,
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
         };
         _http = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd("TemporarySpooferLoader/1.1");
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd("TemporarySpooferLoader/2.0");
         _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
-    // Consumer auto-login: server resolves the license from the caller IP.
     public async Task<AuthResult> AuthByIpAsync()
-    {
-        var res = await _http.GetAsync("/api/auth/ip");
-        var body = await SafeRead(res);
-        if (!res.IsSuccessStatusCode)
-        {
-            return new AuthResult(false, body?.Error ?? $"HTTP {(int)res.StatusCode}", null, null, null, null);
-        }
-        return new AuthResult(true, null, body?.Tier, body?.Status, body?.ExpiresAt, body?.Ip);
-    }
-
-    // Reseller loader: paste a key, we check it exists before letting them in.
-    public async Task<AuthResult> ValidateAsync(string key)
-    {
-        var res = await _http.PostAsJsonAsync("/api/licenses/validate", new { key });
-        var body = await SafeRead(res);
-        if (!res.IsSuccessStatusCode)
-        {
-            return new AuthResult(false, body?.Error ?? $"HTTP {(int)res.StatusCode}", null, null, null, null);
-        }
-        return new AuthResult(true, null, body?.Tier, body?.Status, body?.ExpiresAt, null);
-    }
-
-    // Activation. Consumer: no key — IP identifies the row. Reseller: key included.
-    public async Task<ClaimResult> ClaimAsync(string? key)
-    {
-        var res = key is null
-            ? await _http.PostAsJsonAsync("/api/licenses/claim", new { })
-            : await _http.PostAsJsonAsync("/api/licenses/claim", new { key });
-        var body = await SafeRead(res);
-        if (!res.IsSuccessStatusCode)
-        {
-            return new ClaimResult(false, body?.Error ?? $"HTTP {(int)res.StatusCode}", null, null);
-        }
-        return new ClaimResult(true, null, body?.ExpiresAt, body?.Tier);
-    }
-
-    private static async Task<ApiBody?> SafeRead(HttpResponseMessage res)
     {
         try
         {
-            var text = await res.Content.ReadAsStringAsync();
-            if (string.IsNullOrWhiteSpace(text)) return null;
-            return JsonSerializer.Deserialize<ApiBody>(text, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var res = await _http.GetAsync("/api/auth/ip").ConfigureAwait(false);
+            var text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (!res.IsSuccessStatusCode)
+                return new AuthResult(false, Json.Field(text, "error") ?? $"HTTP {(int)res.StatusCode}", null, null, null, null);
+            return new AuthResult(true, null,
+                Json.Field(text, "tier"),
+                Json.Field(text, "status"),
+                Json.Field(text, "expiresAt"),
+                Json.Field(text, "ip"));
         }
-        catch { return null; }
+        catch (Exception ex) { return new AuthResult(false, ex.Message, null, null, null, null); }
     }
 
-    public sealed class ApiBody
+    public async Task<AuthResult> ValidateAsync(string key)
     {
-        [JsonPropertyName("error")]     public string? Error     { get; set; }
-        [JsonPropertyName("expiresAt")] public string? ExpiresAt { get; set; }
-        [JsonPropertyName("status")]    public string? Status    { get; set; }
-        [JsonPropertyName("tier")]      public string? Tier      { get; set; }
-        [JsonPropertyName("ip")]        public string? Ip        { get; set; }
+        try
+        {
+            var payload = "{\"key\":\"" + Json.Escape(key) + "\"}";
+            using var content = new StringContent(payload, Encoding.UTF8, "application/json");
+            var res = await _http.PostAsync("/api/licenses/validate", content).ConfigureAwait(false);
+            var text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (!res.IsSuccessStatusCode)
+                return new AuthResult(false, Json.Field(text, "error") ?? $"HTTP {(int)res.StatusCode}", null, null, null, null);
+            return new AuthResult(true, null,
+                Json.Field(text, "tier"),
+                Json.Field(text, "status"),
+                Json.Field(text, "expiresAt"),
+                null);
+        }
+        catch (Exception ex) { return new AuthResult(false, ex.Message, null, null, null, null); }
+    }
+
+    public async Task<ClaimResult> ClaimAsync(string? key)
+    {
+        try
+        {
+            var payload = key == null ? "{}" : "{\"key\":\"" + Json.Escape(key) + "\"}";
+            using var content = new StringContent(payload, Encoding.UTF8, "application/json");
+            var res = await _http.PostAsync("/api/licenses/claim", content).ConfigureAwait(false);
+            var text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (!res.IsSuccessStatusCode)
+                return new ClaimResult(false, Json.Field(text, "error") ?? $"HTTP {(int)res.StatusCode}", null, null);
+            return new ClaimResult(true, null, Json.Field(text, "expiresAt"), Json.Field(text, "tier"));
+        }
+        catch (Exception ex) { return new ClaimResult(false, ex.Message, null, null); }
     }
 }
 
-public readonly record struct AuthResult(bool Ok, string? Error, string? Tier, string? Status, string? ExpiresAt, string? Ip);
-public readonly record struct ClaimResult(bool Ok, string? Error, string? ExpiresAt, string? Tier);
+internal static class Json
+{
+    private static readonly Regex KeyRe = new(
+        "\"(?<k>[A-Za-z_][A-Za-z0-9_]*)\"\\s*:\\s*(?:\"(?<s>(?:[^\"\\\\]|\\\\.)*)\"|null|(?<b>true|false)|(?<n>-?\\d+(?:\\.\\d+)?))",
+        RegexOptions.Compiled);
+
+    public static string? Field(string json, string key)
+    {
+        if (string.IsNullOrEmpty(json)) return null;
+        foreach (Match m in KeyRe.Matches(json))
+        {
+            if (m.Groups["k"].Value != key) continue;
+            if (m.Groups["s"].Success) return Unescape(m.Groups["s"].Value);
+            if (m.Groups["b"].Success) return m.Groups["b"].Value;
+            if (m.Groups["n"].Success) return m.Groups["n"].Value;
+            return null; // explicit null
+        }
+        return null;
+    }
+
+    public static string Escape(string s) =>
+        s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
+
+    private static string Unescape(string s) =>
+        s.Replace("\\\"", "\"").Replace("\\\\", "\\").Replace("\\/", "/").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\t", "\t");
+}
+
+public readonly struct AuthResult
+{
+    public bool    Ok        { get; }
+    public string? Error     { get; }
+    public string? Tier      { get; }
+    public string? Status    { get; }
+    public string? ExpiresAt { get; }
+    public string? Ip        { get; }
+    public AuthResult(bool ok, string? error, string? tier, string? status, string? expiresAt, string? ip)
+    { Ok = ok; Error = error; Tier = tier; Status = status; ExpiresAt = expiresAt; Ip = ip; }
+}
+
+public readonly struct ClaimResult
+{
+    public bool    Ok        { get; }
+    public string? Error     { get; }
+    public string? ExpiresAt { get; }
+    public string? Tier      { get; }
+    public ClaimResult(bool ok, string? error, string? expiresAt, string? tier)
+    { Ok = ok; Error = error; ExpiresAt = expiresAt; Tier = tier; }
+}

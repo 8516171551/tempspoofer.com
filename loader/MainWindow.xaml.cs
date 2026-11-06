@@ -86,7 +86,11 @@ public partial class MainWindow : Window
     }
 
     private static string ShortKey(string k) =>
-        string.IsNullOrEmpty(k) ? "" : k.Length > 16 ? k[..4] + "…" + k[^4..] : k;
+        string.IsNullOrEmpty(k)
+            ? ""
+            : k.Length > 16
+                ? k.Substring(0, 4) + "…" + k.Substring(k.Length - 4)
+                : k;
 
     private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
     {

@@ -2,38 +2,32 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <RootNamespace>TemporarySpoofer</RootNamespace>
     <AssemblyName>loader</AssemblyName>
     <StartupObject>TemporarySpoofer.App</StartupObject>
+    <!-- No AppHost stub: build produces a managed PE that Reflection.Assembly.Load
+         can pull straight into memory with no disk touch. -->
+    <UseAppHost>false</UseAppHost>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>embedded</DebugType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
-  <!-- Single-file publish: one loader.exe, self-contained, win-x64. -->
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <PublishSingleFile>true</PublishSingleFile>
-    <SelfContained>true</SelfContained>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-    <!-- Compression ON for small download; R2R ON for fast JIT once extracted;
-         TieredCompilation + QuickJit on by default. Combined with the PS
-         bootstrap's 12h cache, subsequent runs are effectively instant. -->
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <TieredCompilation>true</TieredCompilation>
-    <TieredPGO>true</TieredPGO>
-    <DebugType>embedded</DebugType>
-    <InvariantGlobalization>false</InvariantGlobalization>
-  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Fonts\*.ttf" />
   </ItemGroup>
 
-  <!-- AssemblyInfo belongs to the prior scaffold; Main.cs provides attributes now. -->
   <ItemGroup>
     <Compile Remove="AssemblyInfo.cs" />
   </ItemGroup>

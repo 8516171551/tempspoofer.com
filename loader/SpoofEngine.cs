@@ -16,20 +16,20 @@ public static class SpoofEngine
 {
     public sealed record Step(string Name, string Category, int DurationMs);
 
-    public static IReadOnlyList<Step> GetSteps() =>
-    [
-        new("Collecting fingerprint",       "Audit",    420),
-        new("Snapshotting registry hives",  "Backup",   560),
-        new("Rotating MAC identifier",      "Network",  610),
-        new("Rotating disk serial",         "Storage",  720),
-        new("Rotating SMBIOS GUID",         "System",   680),
-        new("Rotating TPM endorsement",     "System",   540),
-        new("Rotating machine SID",         "System",   460),
-        new("Flushing identifier cache",    "Cache",    380),
-        new("Patching telemetry queue",     "Network",  320),
-        new("Re-fingerprinting",            "Audit",    450),
-        new("Verifying rotation",           "Verify",   520),
-    ];
+    public static IReadOnlyList<Step> GetSteps() => new Step[]
+    {
+        new Step("Collecting fingerprint",       "Audit",    420),
+        new Step("Snapshotting registry hives",  "Backup",   560),
+        new Step("Rotating MAC identifier",      "Network",  610),
+        new Step("Rotating disk serial",         "Storage",  720),
+        new Step("Rotating SMBIOS GUID",         "System",   680),
+        new Step("Rotating TPM endorsement",     "System",   540),
+        new Step("Rotating machine SID",         "System",   460),
+        new Step("Flushing identifier cache",    "Cache",    380),
+        new Step("Patching telemetry queue",     "Network",  320),
+        new Step("Re-fingerprinting",            "Audit",    450),
+        new Step("Verifying rotation",           "Verify",   520),
+    };
 
     public static async Task ExecuteAsync(Step s, Action<string> log, CancellationToken ct = default)
     {
@@ -44,7 +44,8 @@ public static class SpoofEngine
     public static string FakeHwid()
     {
         var raw = Environment.MachineName + "|" + Environment.UserName;
-        var h = SHA256.HashData(Encoding.UTF8.GetBytes(raw));
+        using var sha = SHA256.Create();
+        var h = sha.ComputeHash(Encoding.UTF8.GetBytes(raw));
         var sb = new StringBuilder();
         for (int i = 0; i < 16; i++) sb.Append(h[i].ToString("X2"));
         return sb.ToString();

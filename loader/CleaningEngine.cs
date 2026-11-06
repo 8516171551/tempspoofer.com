@@ -304,10 +304,10 @@ public static class CleaningEngine
             if (bamKey == null) return;
             foreach (var val in bamKey.GetValueNames())
             {
-                if (val.Contains("Fortnite", StringComparison.OrdinalIgnoreCase) ||
-                    val.Contains("EasyAntiCheat", StringComparison.OrdinalIgnoreCase) ||
-                    val.Contains("EpicGames", StringComparison.OrdinalIgnoreCase) ||
-                    val.Contains("BattlEye", StringComparison.OrdinalIgnoreCase))
+                if (val.IndexOf("Fortnite",      StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    val.IndexOf("EasyAntiCheat", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    val.IndexOf("EpicGames",     StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    val.IndexOf("BattlEye",      StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     bamKey.DeleteValue(val, false);
                     log($"  bam del  {val}");
@@ -397,7 +397,7 @@ public static class CleaningEngine
             if (classesKey == null) return;
             foreach (var subName in classesKey.GetSubKeyNames())
             {
-                if (!subName.StartsWith('.') && subName != "*") continue;
+                if (!subName.StartsWith(".") && subName != "*") continue;
                 try
                 {
                     using var sub = classesKey.OpenSubKey(subName, true);
