@@ -64,7 +64,7 @@
             <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
         </Style>
 
-        <!-- Primary: subtle scale pulse on press + glow halo on hover -->
+        <!-- Primary: color shift + inner glow that never bleeds past the button bounds -->
         <Style x:Key="FlatBtn" TargetType="Button">
             <Setter Property="FontFamily" Value="{StaticResource Poppins}"/>
             <Setter Property="Background" Value="{StaticResource Accent}"/>
@@ -74,26 +74,18 @@
             <Setter Property="Padding" Value="0,10"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Grid>
-                            <Border x:Name="halo" Background="{StaticResource GlowBrushSoft}" CornerRadius="10" Margin="-8" Opacity="0"/>
-                            <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                                <Border.RenderTransform>
-                                    <ScaleTransform x:Name="scale" ScaleX="1" ScaleY="1" CenterX="0" CenterY="0"/>
-                                </Border.RenderTransform>
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                        </Grid>
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}" ClipToBounds="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#CCE4FA" Duration="0:0:0.18"/>
-                                            <DoubleAnimation Storyboard.TargetName="halo" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.22"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
@@ -101,7 +93,6 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#B2D6F8" Duration="0:0:0.18"/>
-                                            <DoubleAnimation Storyboard.TargetName="halo" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.22"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
