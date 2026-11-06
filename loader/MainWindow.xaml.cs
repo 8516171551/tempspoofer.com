@@ -102,8 +102,8 @@ public partial class MainWindow : Window
 
     private void SetBusy(bool busy, string? spoofLabel = null, string? cleanLabel = null)
     {
-        SpoofBtn.IsEnabled = !busy && _authed;
         CleanBtn.IsEnabled = !busy && _authed;
+        SpoofBtn.IsEnabled = !busy && _authed;
         if (spoofLabel is not null) SpoofBtnLabel.Text = spoofLabel;
         if (cleanLabel is not null) CleanBtnLabel.Text = cleanLabel;
     }
@@ -117,7 +117,7 @@ public partial class MainWindow : Window
     // --- SPOOF: mock animation, zero real HWID writes ---
     private async void SpoofBtn_Click(object sender, RoutedEventArgs e)
     {
-        SetBusy(true, spoofLabel: "Spoofing…");
+        SetBusy(true, spoofLabel: "SPOOFING…");
         _startTime = DateTime.Now;
         _timer.Start();
 
@@ -173,13 +173,13 @@ public partial class MainWindow : Window
             : $"expires {FormatExpiry(claim.ExpiresAt!)}";
         ShowSuccess();
 
-        SetBusy(false, spoofLabel: "Spoof now");
+        SetBusy(false, spoofLabel: "2. SPOOF HWID");
     }
 
     // --- CLEAN: real CleaningEngine runs on this machine ---
     private async void CleanBtn_Click(object sender, RoutedEventArgs e)
     {
-        SetBusy(true, cleanLabel: "Cleaning…");
+        SetBusy(true, cleanLabel: "CLEANING…");
         _startTime = DateTime.Now;
         _timer.Start();
 
@@ -223,7 +223,7 @@ public partial class MainWindow : Window
         SuccessDetail.Text = $"{total} steps complete";
         ShowSuccess();
 
-        SetBusy(false, cleanLabel: "Clean traces");
+        SetBusy(false, cleanLabel: "1. CLEAN TRACES");
     }
 
     // Scrolls just enough to make the running card visible — never jams to end.
