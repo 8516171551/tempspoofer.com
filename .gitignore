@@ -8,5 +8,6 @@ node_modules
 .DS_Store
 bin/
 obj/
+publish/
 *.user
 drizzle/meta/_journal.json.backup
