@@ -155,17 +155,17 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="0" x:Name="SpoofBtn" Style="{StaticResource FlatBtn}" FontSize="15" FontWeight="SemiBold" Padding="0,17" Click="SpoofBtn_Click" Margin="0,0,5,0" IsEnabled="False">
+                    <Button Grid.Column="0" x:Name="SpoofBtn" Style="{StaticResource FlatBtn}" FontSize="13" FontWeight="SemiBold" Padding="0,11" Click="SpoofBtn_Click" Margin="0,0,5,0" IsEnabled="False">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⚡" FontSize="16" Margin="0,0,10,0" Foreground="#0A0A0A"/>
-                            <TextBlock x:Name="SpoofBtnLabel" Text="Spoof now" Foreground="#0A0A0A" FontWeight="SemiBold" FontSize="15"/>
+                            <TextBlock Text="⚡" FontSize="13" Margin="0,0,8,0" Foreground="#0A0A0A"/>
+                            <TextBlock x:Name="SpoofBtnLabel" Text="Spoof now" Foreground="#0A0A0A" FontWeight="SemiBold" FontSize="13"/>
                         </StackPanel>
                     </Button>
 
-                    <Button Grid.Column="1" x:Name="CleanBtn" Style="{StaticResource GhostBtn}" FontSize="15" FontWeight="SemiBold" Padding="0,17" Click="CleanBtn_Click" Margin="5,0,0,0" IsEnabled="False">
+                    <Button Grid.Column="1" x:Name="CleanBtn" Style="{StaticResource GhostBtn}" FontSize="13" FontWeight="SemiBold" Padding="0,11" Click="CleanBtn_Click" Margin="5,0,0,0" IsEnabled="False">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🧹" FontSize="16" Margin="0,0,10,0"/>
-                            <TextBlock x:Name="CleanBtnLabel" Text="Clean traces" Foreground="{StaticResource Text}" FontWeight="SemiBold" FontSize="15"/>
+                            <TextBlock Text="🧹" FontSize="13" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="CleanBtnLabel" Text="Clean traces" Foreground="{StaticResource Text}" FontWeight="SemiBold" FontSize="13"/>
                         </StackPanel>
                     </Button>
                 </Grid>
