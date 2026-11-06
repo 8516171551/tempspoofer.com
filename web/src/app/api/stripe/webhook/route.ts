@@ -6,7 +6,6 @@ import { db, schema } from "@/lib/db";
 import { newLicenseKey } from "@/lib/keys";
 import { CONSUMER_PRICING, type ConsumerTier } from "@/lib/pricing";
 
-export const runtime = "nodejs";
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 

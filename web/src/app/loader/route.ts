@@ -9,7 +9,6 @@
 
 import { NextResponse } from "next/server";
 
-export const runtime = "edge";
 
 const SCRIPT = `# Temporary Spoofer loader bootstrap
 $ErrorActionPreference = 'Stop'

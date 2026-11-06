@@ -182,7 +182,7 @@ function Footer() {
     <footer className="border-t border-[#1e1e23] mt-24">
       <div className="max-w-6xl mx-auto px-6 py-10 flex items-center justify-between flex-wrap gap-4">
         <div className="text-xs text-zinc-500">
-          © {new Date().getFullYear()} Temporary Spoofer. Windows 10 / 11 only.
+          © 2026 Temporary Spoofer. Windows 10 / 11 only.
         </div>
         <div className="flex gap-6 text-sm text-zinc-400">
           <Link href="/login" className="hover:text-white">Login</Link>

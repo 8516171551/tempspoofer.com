@@ -3,7 +3,6 @@ import { stripe } from "@/lib/stripe";
 import { currentSession } from "@/lib/session";
 import { CONSUMER_PRICING, RESELLER_PRICING, type ConsumerTier, type ResellerTier } from "@/lib/pricing";
 
-export const runtime = "nodejs";
 
 // Lazy sign-up path for consumer purchases:
 // A user who hits /buy without being logged in is bounced to /register first.

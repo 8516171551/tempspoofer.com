@@ -5,7 +5,6 @@ import { db, schema } from "@/lib/db";
 import { currentSession } from "@/lib/session";
 import { CONSUMER_PRICING, RESELLER_PRICING, fmtUsd } from "@/lib/pricing";
 
-export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const s = await currentSession();

@@ -7,7 +7,6 @@ import { db, schema } from "@/lib/db";
 import { currentSession } from "@/lib/session";
 import { CONSUMER_PRICING, type ConsumerTier } from "@/lib/pricing";
 
-export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const s = await currentSession();

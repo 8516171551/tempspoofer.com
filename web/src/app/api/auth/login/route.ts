@@ -4,7 +4,6 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { verifyPassword, signSession, SESSION_COOKIE } from "@/lib/auth";
 
-export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null) as { email?: string; password?: string } | null;

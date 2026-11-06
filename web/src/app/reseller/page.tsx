@@ -6,7 +6,6 @@ import { currentSession } from "@/lib/session";
 import { RESELLER_PRICING, CONSUMER_PRICING, fmtUsd } from "@/lib/pricing";
 import { GenerateKeysForm } from "./form";
 
-export const dynamic = "force-dynamic";
 
 export default async function ResellerPage() {
   const s = await currentSession();

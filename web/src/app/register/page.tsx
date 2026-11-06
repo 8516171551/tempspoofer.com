@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen grid-pattern" />}>
+      <RegisterInner />
+    </Suspense>
+  );
+}
+
+function RegisterInner() {
   const router = useRouter();
   const params = useSearchParams();
   const resellerTier = params.get("reseller");           // starter|pro|enterprise or null

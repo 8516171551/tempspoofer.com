@@ -5,7 +5,6 @@ import { currentSession } from "@/lib/session";
 import { newLicenseKey } from "@/lib/keys";
 import { CONSUMER_PRICING, RESELLER_PRICING } from "@/lib/pricing";
 
-export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const s = await currentSession();
