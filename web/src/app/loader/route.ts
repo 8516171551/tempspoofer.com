@@ -1,9 +1,8 @@
 // irm https://tempspoofer.com/loader | iex
 //
-// Fileless bootstrap: pulls loader.exe bytes into PowerShell memory,
-// Reflection.Assembly.Load it, invokes WPF entry on an STA thread.
-// Any crash bubbles into a MessageBox so the user sees it instead of a
-// silent exit.
+// Fileless bootstrap. On crash, the loader drops a one-shot diagnostic
+// file at %TEMP%\tempspoofer_crash.txt; this script reads it out loud
+// (and deletes it) so the console shows the exact reason.
 
 import { NextResponse } from "next/server";
 
@@ -23,9 +22,13 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
+# Wipe any stale crash file before running.
+$crash = Join-Path $env:TEMP 'tempspoofer_crash.txt'
+Remove-Item $crash -ErrorAction SilentlyContinue
+
 Write-Host '  pulling to memory...' -ForegroundColor DarkGray
 try {
-    $resp = Invoke-WebRequest -Uri 'https://tempspoofer.com/loader.exe' -UseBasicParsing
+    $resp  = Invoke-WebRequest -Uri 'https://tempspoofer.com/loader.exe' -UseBasicParsing
     $bytes = $resp.Content
     if ($bytes -is [string]) { $bytes = [Text.Encoding]::GetEncoding(28591).GetBytes($bytes) }
 } catch {
@@ -34,7 +37,6 @@ try {
 }
 Write-Host ('  loaded {0:N0} KB' -f ($bytes.Length / 1024)) -ForegroundColor DarkGray
 
-# Preload WPF so pack URIs + XAML parser can resolve everything.
 Add-Type -AssemblyName PresentationFramework | Out-Null
 Add-Type -AssemblyName PresentationCore      | Out-Null
 Add-Type -AssemblyName WindowsBase           | Out-Null
@@ -47,7 +49,6 @@ try {
     return
 }
 
-# Point WPF's pack URI resolver at our in-memory assembly.
 try { [Windows.Application]::ResourceAssembly = $asm } catch { }
 
 $entry = $asm.EntryPoint
@@ -59,35 +60,21 @@ if ($null -eq $entry) {
 Write-Host '  launching...' -ForegroundColor Green
 Write-Host ''
 
-# Script-scope slot the STA thread can leak its exception through.
-$script:TsLoaderError = $null
-
 $thread = [Threading.Thread]::new([Threading.ThreadStart]{
-    try {
-        $entry.Invoke($null, $null)
-    } catch {
-        $script:TsLoaderError = $_.Exception
-        $msg = $_.Exception
-        while ($msg.InnerException) { $msg = $msg.InnerException }
-        try {
-            [Windows.MessageBox]::Show(
-                $msg.ToString(),
-                'Temporary Spoofer — crash',
-                [Windows.MessageBoxButton]::OK,
-                [Windows.MessageBoxImage]::Error
-            ) | Out-Null
-        } catch { }
-    }
+    try { $entry.Invoke($null, $null) } catch { }
 })
 $thread.SetApartmentState([Threading.ApartmentState]::STA)
 $thread.IsBackground = $false
 $thread.Start()
 $thread.Join()
 
-if ($script:TsLoaderError) {
+# Surface any crash the loader logged.
+if (Test-Path $crash) {
     Write-Host ''
-    Write-Host '  crashed:' -ForegroundColor Red
-    Write-Host ('  ' + $script:TsLoaderError.ToString().Split("\`n")[0]) -ForegroundColor DarkGray
+    Write-Host '  ----- crash dump -----' -ForegroundColor Red
+    Get-Content $crash | ForEach-Object { Write-Host ('  ' + $_) -ForegroundColor Yellow }
+    Write-Host '  ----------------------' -ForegroundColor Red
+    Remove-Item $crash -Force -ErrorAction SilentlyContinue
 }
 `;
 
