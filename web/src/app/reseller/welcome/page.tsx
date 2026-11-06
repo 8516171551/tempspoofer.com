@@ -21,7 +21,7 @@ export default async function ResellerWelcomePage({ searchParams }: { searchPara
     <div className="grid-pattern min-h-screen flex items-center justify-center px-6">
       <div className="card p-8 w-full max-w-lg">
         <Link href="/" className="flex items-center gap-2 font-bold mb-8">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300"></span>
           Temporary Spoofer
         </Link>
 
@@ -36,7 +36,7 @@ export default async function ResellerWelcomePage({ searchParams }: { searchPara
               Click it to open your reseller dashboard.
             </p>
             <div className="bg-[#0a0a0a] border border-[#26262c] rounded-lg p-4 text-sm text-zinc-300 mb-6">
-              Didn't get it in a minute? Check spam, or <Link href="/login" className="text-orange-400 hover:underline">log in</Link> if you already have an account on this email.
+              Didn't get it in a minute? Check spam, or <Link href="/login" className="text-brand-300 hover:underline">log in</Link> if you already have an account on this email.
             </div>
             <Link href="/login" className="btn btn-ghost w-full">Already have a password? Log in</Link>
           </>

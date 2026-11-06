@@ -1,7 +1,5 @@
-// Read-only license check for the loader's login window. Returns the
-// tier and (if already activated) the current status/expiry, without
-// binding to a HWID or mutating state. Actual activation still happens
-// in /api/licenses/claim when the user presses Spoof.
+// Used by the RESELLER loader when a user pastes a reseller-issued key.
+// Checks the key exists and is not expired. Does not touch IP or state.
 
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
@@ -30,6 +28,5 @@ export async function POST(req: Request) {
     tier: lic.tier,
     status: lic.status,
     expiresAt: lic.expiresAt,
-    boundToThisMachine: null,                    // loader compares hwid itself
   });
 }

@@ -15,7 +15,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        KeyBadge.Text = ShortKey(Session.LicenseKey);
+        IdBadge.Text = Session.LicenseKey is { Length: > 0 } k
+            ? ShortKey(k)
+            : (Session.Ip ?? "");
         if (!string.IsNullOrEmpty(Session.ExpiresAt))
             ExpiryText.Text = FormatExpiry(Session.ExpiresAt);
 
@@ -25,7 +27,7 @@ public partial class MainWindow : Window
             ElapsedText.Text = $"{(int)elapsed.TotalMinutes:D2}:{elapsed.Seconds:D2}";
         };
 
-        Log($"License validated. Tier: {Session.Tier}");
+        Log($"Signed in. Tier: {Session.Tier}  ({(Session.LicenseKey is null ? "IP auth" : "key auth")})");
         Log("Ready. Choose Clean or Spoof.");
     }
 
@@ -62,37 +64,32 @@ public partial class MainWindow : Window
         if (cleanLabel is not null) CleanBtnLabel.Text = cleanLabel;
     }
 
-    // --- SPOOF: mock animation, no real HWID writes anywhere ---
+    // --- SPOOF: mock animation, zero real HWID writes ---
     private async void SpoofBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (string.IsNullOrEmpty(Session.LicenseKey))
-        {
-            Log("ERROR  No license in session.");
-            return;
-        }
-
         SetBusy(true, spoofLabel: "Spoofing...");
         _startTime = DateTime.Now;
         _timer.Start();
 
         StatusText.Text = "Claiming";
-        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent2");
+        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
 
-        var hwid = SpoofEngine.FakeHwid();
-        Log($"Posting claim for {ShortKey(Session.LicenseKey)}");
-        var claim = await Session.Api.ClaimAsync(Session.LicenseKey, hwid);
+        Log(Session.LicenseKey is null
+            ? "Posting claim (IP auth)"
+            : $"Posting claim for {ShortKey(Session.LicenseKey)}");
+        var claim = await Session.Api.ClaimAsync(Session.LicenseKey);
         if (!claim.Ok)
         {
             Log($"ERROR  {claim.Error}");
             StatusText.Text = "Rejected";
-            StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent");
+            StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
             SetBusy(false, spoofLabel: "Spoof now");
             _timer.Stop();
             return;
         }
 
         StatusText.Text = "Running";
-        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent2");
+        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
         Log($"License active until {claim.ExpiresAt}");
         if (!string.IsNullOrEmpty(claim.ExpiresAt))
             ExpiryText.Text = FormatExpiry(claim.ExpiresAt!);
@@ -131,7 +128,7 @@ public partial class MainWindow : Window
         _timer.Start();
 
         StatusText.Text = "Cleaning";
-        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent2");
+        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
 
         var steps = CleaningEngine.GetSteps();
         int done = 0, total = steps.Count;

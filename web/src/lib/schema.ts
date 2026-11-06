@@ -36,7 +36,8 @@ export const licenses = pgTable("ts_licenses", {
   userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
   resellerId: integer("reseller_id").references(() => resellers.id, { onDelete: "set null" }),
   status: text("status").notNull().default("unused"),
-  hwid: text("hwid"),
+  ip: text("ip"),                                 // IP binding — primary auth for consumer loader
+  hwid: text("hwid"),                             // kept for audit; no longer gates activation
   activatedAt: timestamp("activated_at"),
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -45,6 +46,7 @@ export const licenses = pgTable("ts_licenses", {
   userIdx: index("ts_licenses_user_idx").on(t.userId),
   resellerIdx: index("ts_licenses_reseller_idx").on(t.resellerId),
   emailIdx: index("ts_licenses_email_idx").on(t.email),
+  ipIdx: index("ts_licenses_ip_idx").on(t.ip),
 }));
 
 export const purchases = pgTable("ts_purchases", {

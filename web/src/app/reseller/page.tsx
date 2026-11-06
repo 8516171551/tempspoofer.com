@@ -40,14 +40,33 @@ export default async function ResellerPage() {
       <main className="max-w-6xl mx-auto px-6 py-10">
         <h1 className="text-3xl font-bold mb-2">Reseller panel</h1>
         <p className="text-zinc-400 mb-8">
-          <span className="text-orange-400">{plan.name}</span> — status: {reseller.status} — slug:{" "}
+          <span className="text-brand-300">{plan.name}</span> — status: {reseller.status} — slug:{" "}
           <code className="bg-[#111113] border border-[#26262c] rounded px-2 py-0.5 font-mono text-xs">{reseller.slug}</code>
         </p>
 
-        <div className="grid sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid sm:grid-cols-3 gap-4 mb-6">
           <Stat label="Total keys issued" value={totalKeys.toString()} />
           <Stat label="Active" value={activeKeys.toString()} />
           <Stat label="Unused" value={unusedKeys.toString()} />
+        </div>
+
+        <div className="card p-6 mb-8 border-brand-300/40">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <div className="text-xs text-brand-300 font-semibold uppercase mb-1">Reseller loader (key-auth)</div>
+              <div className="font-semibold">Hand this build to your customers</div>
+              <div className="text-sm text-zinc-400 mt-1">
+                Key-based login (no IP binding). Put either link on your shop.
+              </div>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <a href="/loader-reseller.exe" className="btn btn-primary">Download .exe</a>
+              <a href="/loader-reseller" className="btn btn-ghost" target="_blank">PowerShell one-liner</a>
+            </div>
+          </div>
+          <div className="mt-4 bg-[#0a0a0a] border border-[#26262c] rounded-lg p-3 font-mono text-xs text-zinc-300 overflow-x-auto">
+            irm https://tempspoofer.com/loader-reseller | iex
+          </div>
         </div>
 
         <div className="card p-6 mb-6">
@@ -61,16 +80,16 @@ export default async function ResellerPage() {
         </div>
 
         {plan.features.branding && (
-          <div className="card p-6 mb-6 border-amber-500/30">
-            <div className="text-xs text-amber-400 font-semibold uppercase mb-2">Branding (Pro)</div>
+          <div className="card p-6 mb-6 border-brand-200/30">
+            <div className="text-xs text-brand-200 font-semibold uppercase mb-2">Branding (Pro)</div>
             <p className="text-sm text-zinc-400">
               Your keys can be delivered under your own brand name. Contact support to configure your reseller storefront and loader skin.
             </p>
           </div>
         )}
         {plan.features.discordBot && (
-          <div className="card p-6 mb-6 border-indigo-500/30">
-            <div className="text-xs text-indigo-400 font-semibold uppercase mb-2">Discord bot (Pro)</div>
+          <div className="card p-6 mb-6 border-brand-400/30">
+            <div className="text-xs text-brand-400 font-semibold uppercase mb-2">Discord bot (Pro)</div>
             <p className="text-sm text-zinc-400">
               Invite the Temporary Spoofer bot to your server to issue keys via slash command. Contact support for your invite link.
             </p>
@@ -104,7 +123,7 @@ export default async function ResellerPage() {
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             k.status === "active" ? "bg-emerald-500/15 text-emerald-400"
                             : k.status === "expired" ? "bg-zinc-500/15 text-zinc-500"
-                            : "bg-orange-500/15 text-orange-400"
+                            : "bg-brand-300/15 text-brand-300"
                           }`}>{k.status}</span>
                         </td>
                         <td className="py-3 pr-4 text-zinc-400">{consumer ? fmtUsd(consumer.priceCents) : "—"}</td>
@@ -136,7 +155,7 @@ function TopBar({ email }: { email: string }) {
     <header className="border-b border-[#1e1e23] bg-[#0a0a0a]/80 backdrop-blur sticky top-0 z-30">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300"></span>
           Temporary Spoofer
         </Link>
         <nav className="flex items-center gap-5 text-sm">

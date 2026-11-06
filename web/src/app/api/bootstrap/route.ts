@@ -44,10 +44,12 @@ const DDL: string[] = [
     created_at    TIMESTAMP NOT NULL DEFAULT NOW()
   )`,
   `ALTER TABLE ts_licenses ADD COLUMN IF NOT EXISTS email TEXT`,
+  `ALTER TABLE ts_licenses ADD COLUMN IF NOT EXISTS ip TEXT`,
   `CREATE UNIQUE INDEX IF NOT EXISTS ts_licenses_key_unique ON ts_licenses (license_key)`,
   `CREATE INDEX IF NOT EXISTS ts_licenses_user_idx ON ts_licenses (user_id)`,
   `CREATE INDEX IF NOT EXISTS ts_licenses_reseller_idx ON ts_licenses (reseller_id)`,
   `CREATE INDEX IF NOT EXISTS ts_licenses_email_idx ON ts_licenses (email)`,
+  `CREATE INDEX IF NOT EXISTS ts_licenses_ip_idx ON ts_licenses (ip)`,
 
   `CREATE TABLE IF NOT EXISTS ts_purchases (
     id                  SERIAL PRIMARY KEY,

@@ -1,19 +1,20 @@
-// Shown right after Stripe sends the buyer back from consumer checkout.
-// Looks up the license by Stripe session id so the buyer can grab their
-// key even if the email takes a minute to land.
+// Post-Stripe success page. Also acts as the IP binding step: the
+// first visit from the buyer's network locks the license to that IP
+// so the loader can auto-login later from the same network.
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { CONSUMER_PRICING } from "@/lib/pricing";
+import { clientIp } from "@/lib/ip";
 
 export default async function ReceiptPage({ searchParams }: { searchParams: Promise<{ session?: string }> }) {
   const sp = await searchParams;
   const sessionId = sp.session;
   if (!sessionId) notFound();
 
-  // Webhook may land a hair after Stripe redirects the user — try a few times.
+  // Webhook may land a hair after Stripe redirects — poll briefly.
   let purchase = null as typeof schema.purchases.$inferSelect | null;
   for (let i = 0; i < 6 && !purchase; i++) {
     const rows = await db.select().from(schema.purchases).where(eq(schema.purchases.stripeSessionId, sessionId)).limit(1);
@@ -21,11 +22,25 @@ export default async function ReceiptPage({ searchParams }: { searchParams: Prom
     if (!purchase) await new Promise(r => setTimeout(r, 500));
   }
 
+  let license: typeof schema.licenses.$inferSelect | null = null;
+  if (purchase?.licenseKey) {
+    const rows = await db.select().from(schema.licenses).where(eq(schema.licenses.licenseKey, purchase.licenseKey)).limit(1);
+    license = rows[0] ?? null;
+  }
+
+  // Bind the buyer's IP to this license so the loader auto-logs in later.
+  // Only writes if not already bound, or if the caller IP changed.
+  const ip = await clientIp();
+  if (ip && license && license.ip !== ip) {
+    await db.update(schema.licenses).set({ ip }).where(eq(schema.licenses.id, license.id));
+    license = { ...license, ip };
+  }
+
   return (
     <div className="grid-pattern min-h-screen flex items-center justify-center px-6">
       <div className="card p-8 w-full max-w-lg">
         <Link href="/" className="flex items-center gap-2 font-bold mb-8">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand"></span>
           Temporary Spoofer
         </Link>
 
@@ -36,21 +51,21 @@ export default async function ReceiptPage({ searchParams }: { searchParams: Prom
               Your {CONSUMER_PRICING[purchase.tier as keyof typeof CONSUMER_PRICING]?.name ?? purchase.tier} is ready.
             </h1>
             <p className="text-sm text-zinc-400 mb-6">
-              We also emailed this key to <span className="text-zinc-200">{purchase.email}</span>. One activation per key.
+              We&rsquo;ve bound this pass to your network{ip ? ` (${ip})` : ""}. Run the loader from the same connection and it&rsquo;ll let you in automatically — no key to type.
             </p>
-            {purchase.licenseKey ? (
-              <div className="bg-[#0a0a0a] border border-[#26262c] rounded-lg p-4 text-center font-mono text-amber-300 tracking-wider mb-6 break-all">
-                {purchase.licenseKey}
-              </div>
-            ) : (
-              <div className="bg-[#0a0a0a] border border-[#26262c] rounded-lg p-4 text-center font-mono text-zinc-500 mb-6">
-                Key provisioning… refresh in a moment.
-              </div>
-            )}
-            <div className="text-sm text-zinc-400 mb-3">Run the loader:</div>
-            <code className="block bg-[#0a0a0a] border border-[#26262c] rounded-lg p-3 font-mono text-xs text-zinc-300">
+            <div className="text-sm text-zinc-400 mb-2">Open PowerShell and run:</div>
+            <code className="block bg-[#0a0a0a] border border-[#26262c] rounded-lg p-3 font-mono text-xs text-zinc-300 mb-6">
               irm https://tempspoofer.com/loader | iex
             </code>
+            {purchase.licenseKey && (
+              <details className="text-xs text-zinc-500 mb-2">
+                <summary className="cursor-pointer hover:text-zinc-300">Reference key (for support): {purchase.licenseKey}</summary>
+                <div className="mt-2 text-zinc-500">You don&rsquo;t need to enter this — IP binding handles it. Keep it in case you contact support.</div>
+              </details>
+            )}
+            <p className="text-xs text-zinc-500 mt-4">
+              Changing networks (VPN, mobile tether, different Wi-Fi)? Reload this page from the new network and the binding updates to that IP.
+            </p>
           </>
         ) : (
           <>

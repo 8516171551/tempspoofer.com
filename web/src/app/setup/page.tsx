@@ -61,7 +61,7 @@ function SetupInner() {
     <div className="grid-pattern min-h-screen flex items-center justify-center px-6">
       <div className="card p-8 w-full max-w-md">
         <Link href="/" className="flex items-center gap-2 font-bold mb-8">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300"></span>
           Temporary Spoofer
         </Link>
         <h1 className="text-2xl font-bold mb-1">Set your password.</h1>

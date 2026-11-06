@@ -1,0 +1,58 @@
+name: Build loaders
+
+# Rebuilds both loader binaries whenever source under loader/ changes,
+# then commits them to web/public/ so the next Vercel deploy ships them.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'loader/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build consumer loader
+        shell: bash
+        run: |
+          dotnet publish loader/TemporarySpoofer.csproj \
+            -c Release -r win-x64 \
+            -o loader/publish
+
+      - name: Build reseller loader
+        shell: bash
+        run: |
+          dotnet publish loader/TemporarySpoofer.csproj \
+            -c Release -r win-x64 \
+            -p:DefineConstants=RESELLER \
+            -p:AssemblyName=loader-reseller \
+            -o loader/publish-reseller
+
+      - name: Copy binaries into web/public
+        shell: bash
+        run: |
+          cp loader/publish/loader.exe             web/public/loader.exe
+          cp loader/publish-reseller/loader-reseller.exe web/public/loader-reseller.exe
+
+      - name: Commit & push binaries
+        shell: bash
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "loader-build-bot"
+          git add web/public/loader.exe web/public/loader-reseller.exe
+          if git diff --staged --quiet; then
+            echo "No changes to loader binaries."
+            exit 0
+          fi
+          git commit -m "chore: auto-rebuild loaders from ${GITHUB_SHA:0:7}"
+          git push

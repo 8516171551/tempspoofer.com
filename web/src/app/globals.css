@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-50:  #F2F8FE;
+  --color-brand-100: #E4F0FD;
+  --color-brand-200: #CCE4FA;
+  --color-brand-300: #B2D6F8;
+  --color-brand-400: #8CC0F2;
+  --color-brand-500: #6BAAEB;
+  --color-brand-600: #4A8FDB;
+  --color-brand: #B2D6F8;
+}
+
 :root {
   --bg: #0a0a0a;
   --panel: #111113;
@@ -7,8 +18,9 @@
   --border: #26262c;
   --text: #f4f4f5;
   --muted: #a1a1aa;
-  --accent: #f97316;
-  --accent-2: #fbbf24;
+  --accent: #B2D6F8;
+  --accent-soft: #CCE4FA;
+  --accent-deep: #8CC0F2;
 }
 
 html, body {
@@ -23,22 +35,22 @@ a { color: inherit; text-decoration: none; }
   display: inline-flex; align-items: center; justify-content: center;
   padding: 11px 18px; font-weight: 600; font-size: 14px;
   border-radius: 10px; cursor: pointer; border: 1px solid transparent;
-  transition: transform .06s ease, background .15s ease, border-color .15s ease;
+  transition: transform .08s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 .btn:active { transform: translateY(1px); }
 
 .btn-primary {
-  background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+  background: linear-gradient(180deg, #CCE4FA 0%, #B2D6F8 100%);
   color: #0a0a0a;
-  box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 8px 24px rgba(249,115,22,.22);
+  box-shadow: 0 1px 0 rgba(255,255,255,.4) inset, 0 8px 24px rgba(178,214,248,.18);
 }
-.btn-primary:hover { filter: brightness(1.05); }
+.btn-primary:hover { filter: brightness(1.04); box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 10px 28px rgba(178,214,248,.28); }
 
 .btn-ghost {
   background: transparent; color: var(--text);
   border-color: var(--border);
 }
-.btn-ghost:hover { background: #1b1b1f; }
+.btn-ghost:hover { background: #1b1b1f; border-color: #3a3a44; }
 
 .card {
   background: var(--panel);
@@ -55,24 +67,24 @@ a { color: inherit; text-decoration: none; }
   width: 100%;
   font-size: 14px;
   outline: none;
-  transition: border-color .15s ease, box-shadow .15s ease;
+  transition: border-color .18s ease, box-shadow .18s ease;
 }
 .input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(249,115,22,.18);
+  box-shadow: 0 0 0 3px rgba(178,214,248,.22);
 }
 
 .grid-pattern {
   background-image:
-    radial-gradient(circle at 20% 10%, rgba(249,115,22,.08), transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(251,191,36,.05), transparent 45%),
+    radial-gradient(circle at 20% 10%, rgba(178,214,248,.08), transparent 42%),
+    radial-gradient(circle at 80% 30%, rgba(204,228,250,.05), transparent 45%),
     linear-gradient(to right, rgba(255,255,255,.03) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255,255,255,.03) 1px, transparent 1px);
   background-size: auto, auto, 40px 40px, 40px 40px;
 }
 
 .price-badge {
-  background: linear-gradient(90deg, #f97316, #fbbf24);
+  background: linear-gradient(90deg, #B2D6F8, #CCE4FA);
   color: #0a0a0a;
   padding: 3px 10px;
   border-radius: 999px;
@@ -85,4 +97,9 @@ a { color: inherit; text-decoration: none; }
 .chk { color: #22c55e; }
 .cross { color: #52525b; }
 
-::selection { background: rgba(249,115,22,.4); color: #0a0a0a; }
+::selection { background: rgba(178,214,248,.45); color: #0a0a0a; }
+
+/* Reusable utility: bg-brand / text-brand / border-brand */
+.bg-brand { background-color: var(--accent); }
+.text-brand { color: var(--accent); }
+.border-brand { border-color: var(--accent); }

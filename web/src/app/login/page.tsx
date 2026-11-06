@@ -37,10 +37,10 @@ export default function LoginPage() {
     <div className="grid-pattern min-h-screen flex items-center justify-center px-6">
       <div className="card p-8 w-full max-w-md">
         <Link href="/" className="flex items-center gap-2 font-bold mb-8">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300"></span>
           Temporary Spoofer
         </Link>
-        <div className="text-xs text-orange-400 font-semibold uppercase mb-2">Reseller login</div>
+        <div className="text-xs text-brand-300 font-semibold uppercase mb-2">Reseller login</div>
         <h1 className="text-2xl font-bold mb-1">Open your dashboard.</h1>
         <p className="text-sm text-zinc-400 mb-6">Only resellers have accounts. Customers use their license key directly in the loader.</p>
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 text-sm text-zinc-400 text-center">
-          Not a reseller yet? <Link href="/#reseller" className="text-orange-400 hover:underline">See reseller plans →</Link>
+          Not a reseller yet? <Link href="/#reseller" className="text-brand-300 hover:underline">See reseller plans →</Link>
         </div>
       </div>
     </div>

@@ -22,7 +22,7 @@ function Nav() {
     <header className="border-b border-[#1e1e23] backdrop-blur sticky top-0 z-30 bg-[#0a0a0a]/80">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-[16px]">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300"></span>
           Temporary Spoofer
         </Link>
         <nav className="hidden sm:flex items-center gap-7 text-sm text-zinc-400">
@@ -45,7 +45,7 @@ function Hero() {
         Live now — per-session passes from $4.99
       </div>
       <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.05]">
-        Spoof your <span className="bg-gradient-to-r from-orange-400 to-amber-300 bg-clip-text text-transparent">hardware</span>.<br />
+        Spoof your <span className="bg-gradient-to-r from-brand-300 to-brand-200 bg-clip-text text-transparent">hardware</span>.<br />
         Only when you need it.
       </h1>
       <p className="mt-6 text-lg text-zinc-400 max-w-2xl mx-auto">
@@ -80,8 +80,8 @@ function Features() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((it) => (
           <div key={it.title} className="card p-6">
-            <div className="w-8 h-8 rounded-md bg-orange-500/15 border border-orange-500/30 flex items-center justify-center mb-4">
-              <span className="w-2 h-2 rounded-full bg-orange-400"></span>
+            <div className="w-8 h-8 rounded-md bg-brand-300/15 border border-brand-300/30 flex items-center justify-center mb-4">
+              <span className="w-2 h-2 rounded-full bg-brand-300"></span>
             </div>
             <h3 className="font-semibold text-lg mb-2">{it.title}</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">{it.body}</p>
@@ -104,7 +104,7 @@ function ConsumerPricing() {
           const p = CONSUMER_PRICING[tier];
           const highlight = tier === "week";
           return (
-            <div key={tier} className={`card p-7 relative ${highlight ? "border-orange-500/60 shadow-[0_0_0_1px_rgba(249,115,22,.4)]" : ""}`}>
+            <div key={tier} className={`card p-7 relative ${highlight ? "border-brand-300/60 shadow-[0_0_0_1px_rgba(178,214,248,.4)]" : ""}`}>
               {highlight && <div className="absolute -top-3 left-1/2 -translate-x-1/2"><span className="price-badge">Most popular</span></div>}
               <div className="text-sm text-zinc-400 mb-2">{p.name}</div>
               <div className="text-4xl font-extrabold mb-1">{fmtUsd(p.priceCents)}</div>
@@ -140,11 +140,11 @@ function Reseller() {
         {RESELLER_ORDER.map((tier) => {
           const p = RESELLER_PRICING[tier];
           return (
-            <div key={tier} className={`card p-7 relative ${p.highlight ? "border-orange-500/60 shadow-[0_0_0_1px_rgba(249,115,22,.4)]" : ""}`}>
+            <div key={tier} className={`card p-7 relative ${p.highlight ? "border-brand-300/60 shadow-[0_0_0_1px_rgba(178,214,248,.4)]" : ""}`}>
               {p.highlight && <div className="absolute -top-3 left-1/2 -translate-x-1/2"><span className="price-badge">Most popular</span></div>}
               <h3 className="text-lg font-bold mb-2">{p.name}</h3>
               <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-4xl font-extrabold text-orange-400">{fmtUsd(p.priceCents)}</span>
+                <span className="text-4xl font-extrabold text-brand-300">{fmtUsd(p.priceCents)}</span>
                 <span className="text-sm text-zinc-500">/ month</span>
               </div>
               <ul className="space-y-2 text-sm mb-7">
@@ -170,7 +170,7 @@ function Reseller() {
         })}
       </div>
       <p className="text-center text-xs text-zinc-500 mt-8">
-        Already have a reseller account? <Link href="/login" className="text-orange-400 hover:underline">Log in →</Link>
+        Already have a reseller account? <Link href="/login" className="text-brand-300 hover:underline">Log in →</Link>
       </p>
     </section>
   );
