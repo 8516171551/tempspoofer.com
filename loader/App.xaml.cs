@@ -7,90 +7,83 @@ namespace TemporarySpoofer;
 
 public partial class App : Application
 {
-    private static readonly string CrashFile =
+    private static readonly string LogFile =
         Path.Combine(Path.GetTempPath(), "tempspoofer_crash.txt");
 
     public App()
     {
-        try
-        {
-            // Reflection-loaded: force pack://application:,,,/ URIs to resolve
-            // against our assembly, not the PS host.
-            Application.ResourceAssembly = typeof(App).Assembly;
-        }
+        Dump("ctor:begin");
+        try { Application.ResourceAssembly = typeof(App).Assembly; Dump("ctor:ResourceAssembly set"); }
         catch (Exception ex) { Dump("ctor:ResourceAssembly", ex); }
 
-        // Never let the dispatcher auto-shutdown because of a stray exception.
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-        DispatcherUnhandledException += OnDispatcherException;
-        AppDomain.CurrentDomain.UnhandledException += OnDomainException;
+        DispatcherUnhandledException += (_, ea) =>
+        {
+            Dump("Dispatcher", ea.Exception);
+            try { MessageBox.Show(ea.Exception.ToString(), "Temporary Spoofer — crash",
+                MessageBoxButton.OK, MessageBoxImage.Error); } catch { }
+            ea.Handled = true;
+            Shutdown(1);
+        };
+
+        AppDomain.CurrentDomain.UnhandledException += (_, ea) =>
+        {
+            if (ea.ExceptionObject is Exception x) Dump("AppDomain", x);
+        };
+
+        Dump("ctor:end");
     }
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        Dump("OnStartup:begin");
         try
         {
             base.OnStartup(e);
+            Dump("OnStartup:base returned");
+
             Window w;
 #if RESELLER
             w = new LoginWindow();
 #else
             w = new MainWindow();
 #endif
+            Dump("OnStartup:window constructed: " + w.GetType().Name);
+
             MainWindow = w;
-            w.Closed += (_, _) => Shutdown(0);    // explicit shutdown when the user closes it
+            w.Closed += (_, _) => { Dump("Window:Closed -> Shutdown(0)"); Shutdown(0); };
+            w.Topmost = true;        // debug-only: force visibility above everything else
             w.Show();
+            Dump("OnStartup:Show() returned");
         }
         catch (Exception ex)
         {
             Dump("OnStartup", ex);
-            SafeMessageBox(ex);
+            try { MessageBox.Show(ex.ToString(), "Temporary Spoofer — startup",
+                MessageBoxButton.OK, MessageBoxImage.Error); } catch { }
             Shutdown(1);
         }
     }
 
-    private void OnDispatcherException(object sender, DispatcherUnhandledExceptionEventArgs ea)
-    {
-        Dump("Dispatcher", ea.Exception);
-        SafeMessageBox(ea.Exception);
-        ea.Handled = true;
-        Shutdown(1);
-    }
-
-    private static void OnDomainException(object sender, UnhandledExceptionEventArgs ea)
-    {
-        var ex = ea.ExceptionObject as Exception;
-        if (ex != null) Dump("AppDomain", ex);
-    }
-
-    private static void Dump(string where, Exception ex)
+    private static void Dump(string label, Exception? ex = null)
     {
         try
         {
-            var body =
-                $"[{DateTime.Now:HH:mm:ss}] {where}\n" +
-                $"{ex.GetType().FullName}: {ex.Message}\n" +
-                $"{ex.StackTrace}\n";
-            var inner = ex.InnerException;
-            int depth = 0;
-            while (inner != null && depth++ < 5)
+            var line = $"[{DateTime.Now:HH:mm:ss.fff}] {label}";
+            if (ex != null)
             {
-                body += $"--- inner [{depth}] ---\n{inner.GetType().FullName}: {inner.Message}\n{inner.StackTrace}\n";
-                inner = inner.InnerException;
+                line += $"\n   {ex.GetType().FullName}: {ex.Message}\n   {ex.StackTrace}";
+                var inner = ex.InnerException;
+                int depth = 0;
+                while (inner != null && depth++ < 5)
+                {
+                    line += $"\n   --- inner[{depth}] {inner.GetType().FullName}: {inner.Message}\n   {inner.StackTrace}";
+                    inner = inner.InnerException;
+                }
             }
-            File.AppendAllText(CrashFile, body + "\n");
+            File.AppendAllText(LogFile, line + "\n");
         }
-        catch { /* best effort */ }
-    }
-
-    private static void SafeMessageBox(Exception ex)
-    {
-        try
-        {
-            MessageBox.Show(ex.ToString(), "Temporary Spoofer — crash",
-                MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-        catch { /* if MB itself fails, we still have the file */ }
+        catch { }
     }
 }
