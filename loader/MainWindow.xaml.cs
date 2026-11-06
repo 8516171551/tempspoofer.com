@@ -103,7 +103,12 @@ public partial class MainWindow : Window
     {
         ProgressCount.Text = $"{done} / {total}";
         double pct = total > 0 ? (double)done / total : 0;
-        ProgressBar.Width = pct * (ActualWidth - 32);
+        double target = pct * (ActualWidth - 32);
+        var anim = new DoubleAnimation(target, TimeSpan.FromMilliseconds(260))
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+        };
+        ProgressBar.BeginAnimation(WidthProperty, anim);
     }
 
     private void SetBusy(bool busy, string? spoofLabel = null, string? cleanLabel = null)

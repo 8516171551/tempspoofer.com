@@ -6,31 +6,56 @@
         <FontFamily x:Key="Mono">Consolas</FontFamily>
 
         <!-- Brand: light blue #B2D6F8 -->
-        <SolidColorBrush x:Key="Bg"        Color="#0A0A0A"/>
-        <SolidColorBrush x:Key="Panel"     Color="#111113"/>
-        <SolidColorBrush x:Key="Panel2"    Color="#17171A"/>
-        <SolidColorBrush x:Key="Border"    Color="#26262C"/>
-        <SolidColorBrush x:Key="BorderHi"  Color="#3A3A44"/>
+        <SolidColorBrush x:Key="Bg"        Color="#0A0A0E"/>
+        <SolidColorBrush x:Key="Panel"     Color="#111118"/>
+        <SolidColorBrush x:Key="Panel2"    Color="#171722"/>
+        <SolidColorBrush x:Key="Border"    Color="#242430"/>
+        <SolidColorBrush x:Key="BorderHi"  Color="#3A3A48"/>
         <SolidColorBrush x:Key="Text"      Color="#F4F4F5"/>
-        <SolidColorBrush x:Key="Muted"     Color="#A1A1AA"/>
+        <SolidColorBrush x:Key="Muted"     Color="#9A9AA6"/>
         <SolidColorBrush x:Key="Accent"    Color="#B2D6F8"/>
         <SolidColorBrush x:Key="AccentSoft" Color="#CCE4FA"/>
         <SolidColorBrush x:Key="AccentDeep" Color="#8CC0F2"/>
         <SolidColorBrush x:Key="Warn"      Color="#FBBF24"/>
 
-        <!-- Organic flowing lines texture — subtle brand topography overlay -->
-        <DrawingBrush x:Key="WavesBrush" TileMode="Tile" Viewport="0,0,480,480" ViewportUnits="Absolute" Opacity="0.065">
+        <!-- Squared grid texture. Tight 32px cells with hairline strokes. -->
+        <DrawingBrush x:Key="GridBrush" TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute" Opacity="0.55">
             <DrawingBrush.Drawing>
                 <GeometryDrawing>
                     <GeometryDrawing.Geometry>
-                        <PathGeometry Figures="M 0 80 C 60 30 180 130 240 80 S 420 30 480 80 M 0 200 C 80 150 160 250 240 200 S 400 150 480 200 M 0 320 C 60 270 170 370 240 320 S 420 270 480 320 M 0 440 C 90 390 150 490 240 440 S 400 390 480 440 M 120 0 C 70 60 170 150 120 240 S 70 400 120 480 M 280 0 C 330 80 230 180 280 260 S 320 420 280 480 M 400 0 C 350 70 450 180 400 260 S 350 420 400 480"/>
+                        <GeometryGroup>
+                            <LineGeometry StartPoint="0,0"  EndPoint="32,0"/>
+                            <LineGeometry StartPoint="0,0"  EndPoint="0,32"/>
+                        </GeometryGroup>
                     </GeometryDrawing.Geometry>
                     <GeometryDrawing.Pen>
-                        <Pen Thickness="28" LineJoin="Round" StartLineCap="Round" EndLineCap="Round" Brush="#B2D6F8"/>
+                        <Pen Thickness="1" Brush="#1D1D28"/>
                     </GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingBrush.Drawing>
         </DrawingBrush>
+
+        <!-- Soft brand glow: radial gradient blobs you layer at corners of a window -->
+        <RadialGradientBrush x:Key="GlowBrush" GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#55B2D6F8" Offset="0"/>
+            <GradientStop Color="#1EB2D6F8" Offset="0.35"/>
+            <GradientStop Color="#00B2D6F8" Offset="1"/>
+        </RadialGradientBrush>
+
+        <RadialGradientBrush x:Key="GlowBrushSoft" GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#33B2D6F8" Offset="0"/>
+            <GradientStop Color="#00B2D6F8" Offset="1"/>
+        </RadialGradientBrush>
+
+        <!-- Icon geometries: pure vector Paths so we never ship an emoji -->
+        <Geometry x:Key="IconLightning">M11,2 L3.5,12.5 L9,12.5 L8,18 L15.5,7.5 L10,7.5 L11,2 Z</Geometry>
+        <Geometry x:Key="IconBroom">M14,2 L17,5 L12,10 L13,11 L9,15 L8,14 L4,18 L6,16 L5,15 L8,12 L7,11 L10,7 L11,8 L14,2 Z</Geometry>
+        <Geometry x:Key="IconCheck">M3,9 L7,13 L15,4</Geometry>
+        <Geometry x:Key="IconX">M4,4 L16,16 M16,4 L4,16</Geometry>
+        <Geometry x:Key="IconDash">M4,10 L16,10</Geometry>
+        <Geometry x:Key="IconBang">M10,2 L10,12 M10,15 L10,17</Geometry>
+        <Geometry x:Key="IconMin">M3,10 L17,10</Geometry>
+        <Geometry x:Key="IconClose">M4,4 L16,16 M16,4 L4,16</Geometry>
 
         <Style TargetType="TextBlock">
             <Setter Property="FontFamily" Value="{StaticResource Poppins}"/>
@@ -39,32 +64,56 @@
             <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
         </Style>
 
-        <!-- Primary (blue) button with soft gradient + glow -->
+        <!-- Primary: subtle scale pulse on press + glow halo on hover -->
         <Style x:Key="FlatBtn" TargetType="Button">
             <Setter Property="FontFamily" Value="{StaticResource Poppins}"/>
             <Setter Property="Background" Value="{StaticResource Accent}"/>
             <Setter Property="Foreground" Value="#0A0A0A"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="0,10"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}"
-                                RenderTransformOrigin="0.5,0.5">
-                            <Border.RenderTransform>
-                                <ScaleTransform x:Name="scale" ScaleX="1" ScaleY="1"/>
-                            </Border.RenderTransform>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
+                        <Grid>
+                            <Border x:Name="halo" Background="{StaticResource GlowBrushSoft}" CornerRadius="10" Margin="-8" Opacity="0"/>
+                            <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <Border.RenderTransform>
+                                    <ScaleTransform x:Name="scale" ScaleX="1" ScaleY="1" CenterX="0" CenterY="0"/>
+                                </Border.RenderTransform>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="{StaticResource AccentSoft}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#CCE4FA" Duration="0:0:0.18"/>
+                                            <DoubleAnimation Storyboard.TargetName="halo" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.22"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#B2D6F8" Duration="0:0:0.18"/>
+                                            <DoubleAnimation Storyboard.TargetName="halo" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.22"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="{StaticResource AccentDeep}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#8CC0F2" Duration="0:0:0.08"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="bd" Property="Background" Value="#252530"/>
@@ -87,8 +136,22 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#1B1B1F"/>
-                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource BorderHi}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#1B1B20" Duration="0:0:0.18"/>
+                                            <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="#3A3A48" Duration="0:0:0.18"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#00000000" Duration="0:0:0.18"/>
+                                            <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="#242430" Duration="0:0:0.18"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="bd" Property="Background" Value="#141418"/>
@@ -142,11 +205,11 @@
             </Setter>
         </Style>
 
-        <!-- Slim, elegant text box -->
+        <!-- Slim, animated text box: focus rings in + brand glow underline -->
         <Style x:Key="TxtBox" TargetType="TextBox">
             <Setter Property="FontFamily" Value="{StaticResource Poppins}"/>
             <Setter Property="Foreground" Value="{StaticResource Text}"/>
-            <Setter Property="Background" Value="#0E0E12"/>
+            <Setter Property="Background" Value="#0E0E14"/>
             <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="12"/>
@@ -162,7 +225,20 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource Accent}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="#B2D6F8" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="bd" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="#242430" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource BorderHi}"/>
