@@ -1,0 +1,12 @@
+node_modules
+.next
+.vercel
+.env.local
+.env.production
+.env
+*.log
+.DS_Store
+bin/
+obj/
+*.user
+drizzle/meta/_journal.json.backup

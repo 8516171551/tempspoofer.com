@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>TemporarySpoofer</RootNamespace>
+    <AssemblyName>loader</AssemblyName>
+    <StartupObject>TemporarySpoofer.App</StartupObject>
+  </PropertyGroup>
+
+  <!-- Single-file publish: one loader.exe, self-contained, win-x64. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>embedded</DebugType>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Fonts\*.ttf" />
+  </ItemGroup>
+
+  <!-- Legacy code from the TraceCleaner scaffold — not compiled into the new build. -->
+  <ItemGroup>
+    <Compile Remove="CleaningEngine.cs" />
+    <Compile Remove="AssemblyInfo.cs" />
+  </ItemGroup>
+
+</Project>
