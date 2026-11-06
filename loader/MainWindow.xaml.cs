@@ -10,7 +10,6 @@ namespace TemporarySpoofer;
 
 public partial class MainWindow : Window
 {
-    private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private readonly ObservableCollection<StepItem> _steps = new();
     private DateTime _startTime;
     private bool _authed;
@@ -21,12 +20,6 @@ public partial class MainWindow : Window
 
         StepList.ItemsSource = _steps;
         StepList.ItemTemplate = (DataTemplate)FindResource("StepTemplate");
-
-        _timer.Tick += (_, _) =>
-        {
-            var elapsed = DateTime.Now - _startTime;
-            ElapsedText.Text = $"{(int)elapsed.TotalMinutes:D2}:{elapsed.Seconds:D2}";
-        };
 
         Loaded += async (_, _) =>
         {
@@ -78,7 +71,7 @@ public partial class MainWindow : Window
 
         SpoofBtn.IsEnabled = true;
         CleanBtn.IsEnabled = true;
-        PipelineHint.Text  = $"Tier: {Session.Tier}  ·  {(Session.LicenseKey is null ? "IP auth" : "key auth")}";
+        PipelineHint.Text  = $"Tier: {Session.Tier}";
     }
 
     private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
@@ -90,7 +83,6 @@ public partial class MainWindow : Window
 
     private void UpdateProgress(int done, int total)
     {
-        ProgressCount.Text = $"{done} / {total}";
         double pct = total > 0 ? (double)done / total : 0;
         double target = pct * (ActualWidth - 32);
         var anim = new DoubleAnimation(target, TimeSpan.FromMilliseconds(260))
@@ -119,7 +111,7 @@ public partial class MainWindow : Window
     {
         SetBusy(true, spoofLabel: "SPOOFING…");
         _startTime = DateTime.Now;
-        _timer.Start();
+
 
         StatusText.Text = "Claiming";
         StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
@@ -132,8 +124,7 @@ public partial class MainWindow : Window
             StatusText.Text = "Rejected";
             StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
             PipelineHint.Text = claim.Error ?? "Claim failed.";
-            SetBusy(false, spoofLabel: "Spoof now");
-            _timer.Stop();
+            SetBusy(false, spoofLabel: "2. SPOOF HWID");
             return;
         }
 
@@ -162,7 +153,7 @@ public partial class MainWindow : Window
             UpdateProgress(i + 1, total);
         }
 
-        _timer.Stop();
+
         StatusText.Text = "Complete";
         StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent");
         PipelineHint.Text = $"{total} steps · {(DateTime.Now - _startTime).TotalSeconds:F1}s";
@@ -181,7 +172,7 @@ public partial class MainWindow : Window
     {
         SetBusy(true, cleanLabel: "CLEANING…");
         _startTime = DateTime.Now;
-        _timer.Start();
+
 
         StatusText.Text = "Cleaning";
         StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
@@ -214,7 +205,7 @@ public partial class MainWindow : Window
             UpdateProgress(i + 1, total);
         }
 
-        _timer.Stop();
+
         StatusText.Text = "Clean done";
         StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent");
         PipelineHint.Text = $"{total} steps · {(DateTime.Now - _startTime).TotalSeconds:F1}s";
