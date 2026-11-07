@@ -193,7 +193,7 @@
                     <Border Grid.Column="2" Background="{StaticResource Panel}" CornerRadius="8" Padding="14,11" Margin="4,0,4,0" x:Name="m3">
                         <StackPanel>
                             <TextBlock Text="VERSION" FontSize="10" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                            <TextBlock Text="SPECTRE" FontSize="14" Foreground="{StaticResource Accent}" FontWeight="SemiBold"/>
+                            <TextBlock Text="ECLIPSE" FontSize="14" Foreground="{StaticResource Accent}" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="3" Background="{StaticResource Panel}" CornerRadius="8" Padding="14,11" Margin="4,0,0,0" x:Name="m4">
@@ -261,7 +261,21 @@
                     </Grid>
                     <TextBlock x:Name="SuccessHeadline" Text="Spoof active" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,6"/>
                     <TextBlock x:Name="SuccessDetail" Text="expires —" FontSize="13" Foreground="{StaticResource Muted}" HorizontalAlignment="Center"/>
-                    <Button x:Name="ContinueBtn" Style="{StaticResource GhostBtn}" Content="Continue" Padding="30,10" Click="ContinueBtn_Click" HorizontalAlignment="Center" Margin="0,26,0,0" FontSize="13"/>
+
+                    <!-- Reboot warning — hammered in large so nobody misses it -->
+                    <Border Margin="0,22,0,0" MaxWidth="440" Padding="18,14" CornerRadius="10"
+                            Background="#2A1810" BorderBrush="#F59E0B" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="RESETS ON REBOOT" FontSize="11" FontWeight="Bold" Foreground="#FBBF24" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock FontSize="13" Foreground="#F8E8CC" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" LineHeight="20">
+                                This is a <Run FontWeight="Bold" Foreground="#FDE68A">temporary</Run> spoof. It stops the moment you restart or shut down your PC.
+                                <LineBreak/>
+                                Run the loader and hit Spoof again every time you turn your computer back on.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <Button x:Name="ContinueBtn" Style="{StaticResource GhostBtn}" Content="Got it" Padding="30,10" Click="ContinueBtn_Click" HorizontalAlignment="Center" Margin="0,22,0,0" FontSize="13"/>
                 </StackPanel>
             </Border>
         </Grid>
