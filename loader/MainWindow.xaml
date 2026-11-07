@@ -196,7 +196,7 @@
                     <Border Grid.Column="2" Background="{StaticResource Panel}" CornerRadius="8" Padding="14,11" Margin="4,0,4,0" x:Name="m3">
                         <StackPanel>
                             <TextBlock Text="VERSION" FontSize="10" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                            <TextBlock Text="NIGHTFALL" FontSize="14" Foreground="{StaticResource Accent}" FontWeight="SemiBold"/>
+                            <TextBlock Text="ONYX" FontSize="14" Foreground="{StaticResource Accent}" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="3" Background="{StaticResource Panel}" CornerRadius="8" Padding="14,11" Margin="4,0,0,0" x:Name="m4">
@@ -263,19 +263,32 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0" Margin="20,20,20,10">
-                        <TextBlock Text="SETTINGS" FontSize="12" Foreground="#9CA3AF" FontWeight="Bold" VerticalAlignment="Center"/>
-                        <Button Style="{StaticResource ChromeBtn}" HorizontalAlignment="Right" Click="SettingsClose_Click">
-                            <Path Data="{StaticResource IconClose}" Stroke="#AAA" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="12" Height="12" Stretch="Uniform"/>
-                        </Button>
-                    </Grid>
+                    <!-- Header strip with subtle brand underline -->
+                    <Border Grid.Row="0" Padding="22,18,16,14" BorderThickness="0,0,0,1" BorderBrush="#1A1A24">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Path Data="{StaticResource IconGear}" Stroke="{StaticResource Accent}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="16" Height="16" Stretch="Uniform" Margin="0,0,10,0"/>
+                                <TextBlock Text="Settings" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource Text}" VerticalAlignment="Center"/>
+                                <TextBlock Text="customize your spoofer" FontSize="11" Foreground="#5A5A66" VerticalAlignment="Center" Margin="10,2,0,0"/>
+                            </StackPanel>
+                            <Button Style="{StaticResource CloseBtn}" HorizontalAlignment="Right" Click="SettingsClose_Click" VerticalAlignment="Center">
+                                <Path Data="{StaticResource IconClose}" Stroke="#AAA" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="12" Height="12" Stretch="Uniform"/>
+                            </Button>
+                        </Grid>
+                    </Border>
 
-                    <ScrollViewer Grid.Row="1" Margin="20,0,20,10" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer Grid.Row="1" Margin="18,14,10,10" VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
                         <StackPanel>
 
                             <!-- Spoof Components -->
-                            <TextBlock Text="SPOOF COMPONENTS" FontSize="10" Foreground="#666" FontWeight="SemiBold" Margin="0,4,0,8"/>
-                            <Border Background="{StaticResource Panel}" CornerRadius="10" Padding="16" Margin="0,0,0,18">
+                            <Grid Margin="0,2,0,8">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="3" Height="12" Background="{StaticResource Accent}" CornerRadius="2" Margin="0,0,8,0"/>
+                                    <TextBlock Text="SPOOF COMPONENTS" FontSize="10" Foreground="#8A8A95" FontWeight="Bold"/>
+                                </StackPanel>
+                                <TextBlock Text="pick what the pipeline rotates" FontSize="10" Foreground="#5A5A66" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Border Background="{StaticResource Panel}" BorderBrush="#1E1E26" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,18">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -287,43 +300,52 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <CheckBox Grid.Column="0" Grid.Row="0" x:Name="CompNetwork" Content="Network identifiers (MAC)" Foreground="#E0E0E4" Margin="0,4"/>
-                                    <CheckBox Grid.Column="1" Grid.Row="0" x:Name="CompStorage" Content="Disk serials"              Foreground="#E0E0E4" Margin="0,4"/>
-                                    <CheckBox Grid.Column="0" Grid.Row="1" x:Name="CompSystem"  Content="SMBIOS / TPM / SID"        Foreground="#E0E0E4" Margin="0,4"/>
-                                    <CheckBox Grid.Column="1" Grid.Row="1" x:Name="CompCache"   Content="Identifier cache"           Foreground="#E0E0E4" Margin="0,4"/>
-                                    <CheckBox Grid.Column="0" Grid.Row="2" x:Name="CompAudit"   Content="Pre/post audit"             Foreground="#E0E0E4" Margin="0,4"/>
-                                    <CheckBox Grid.Column="1" Grid.Row="2" x:Name="CompVerify"  Content="Rotation verify"            Foreground="#E0E0E4" Margin="0,4"/>
-                                    <CheckBox Grid.Column="0" Grid.Row="3" x:Name="CompBackup"  Content="Registry snapshot"          Foreground="#E0E0E4" Margin="0,4"/>
+                                    <CheckBox Grid.Column="0" Grid.Row="0" x:Name="CompNetwork" Content="Network identifiers (MAC)" Margin="0,6"/>
+                                    <CheckBox Grid.Column="1" Grid.Row="0" x:Name="CompStorage" Content="Disk serials"              Margin="0,6"/>
+                                    <CheckBox Grid.Column="0" Grid.Row="1" x:Name="CompSystem"  Content="SMBIOS / TPM / SID"        Margin="0,6"/>
+                                    <CheckBox Grid.Column="1" Grid.Row="1" x:Name="CompCache"   Content="Identifier cache"          Margin="0,6"/>
+                                    <CheckBox Grid.Column="0" Grid.Row="2" x:Name="CompAudit"   Content="Pre/post audit"            Margin="0,6"/>
+                                    <CheckBox Grid.Column="1" Grid.Row="2" x:Name="CompVerify"  Content="Rotation verify"           Margin="0,6"/>
+                                    <CheckBox Grid.Column="0" Grid.Row="3" x:Name="CompBackup"  Content="Registry snapshot"         Margin="0,6"/>
                                 </Grid>
                             </Border>
 
                             <!-- Mode -->
-                            <TextBlock Text="MODE" FontSize="10" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                            <Border Background="{StaticResource Panel}" CornerRadius="10" Padding="16" Margin="0,0,0,18">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Border Width="3" Height="12" Background="{StaticResource Accent}" CornerRadius="2" Margin="0,0,8,0"/>
+                                <TextBlock Text="MODE" FontSize="10" Foreground="#8A8A95" FontWeight="Bold"/>
+                            </StackPanel>
+                            <Border Background="{StaticResource Panel}" BorderBrush="#1E1E26" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,18">
                                 <StackPanel>
-                                    <RadioButton x:Name="ModeStealth"  GroupName="Mode" Content="Stealth — low and slow, maximum coverage"   Foreground="#E0E0E4" Margin="0,4"/>
-                                    <RadioButton x:Name="ModeTurbo"    GroupName="Mode" Content="Turbo — faster, skips verify pass"           Foreground="#E0E0E4" Margin="0,4"/>
-                                    <RadioButton x:Name="ModeCautious" GroupName="Mode" Content="Cautious — double verify, slower"            Foreground="#E0E0E4" Margin="0,4"/>
+                                    <RadioButton x:Name="ModeStealth"  GroupName="Mode" Content="Stealth — low and slow, maximum coverage"   Margin="0,6"/>
+                                    <RadioButton x:Name="ModeTurbo"    GroupName="Mode" Content="Turbo — faster, skips verify pass"         Margin="0,6"/>
+                                    <RadioButton x:Name="ModeCautious" GroupName="Mode" Content="Cautious — double verify, slower"          Margin="0,6"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Appearance -->
-                            <TextBlock Text="APPEARANCE" FontSize="10" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                            <Border Background="{StaticResource Panel}" CornerRadius="10" Padding="16" Margin="0,0,0,18">
-                                <StackPanel Orientation="Horizontal">
-                                    <RadioButton x:Name="ThemeDefault"  GroupName="Theme" Content="Default"  Foreground="#E0E0E4" Margin="0,0,16,0"/>
-                                    <RadioButton x:Name="ThemeMidnight" GroupName="Theme" Content="Midnight" Foreground="#E0E0E4" Margin="0,0,16,0"/>
-                                    <RadioButton x:Name="ThemeOcean"    GroupName="Theme" Content="Ocean"    Foreground="#E0E0E4" Margin="0,0,16,0"/>
-                                    <RadioButton x:Name="ThemeAmber"    GroupName="Theme" Content="Amber"    Foreground="#E0E0E4"/>
-                                </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Border Width="3" Height="12" Background="{StaticResource Accent}" CornerRadius="2" Margin="0,0,8,0"/>
+                                <TextBlock Text="APPEARANCE" FontSize="10" Foreground="#8A8A95" FontWeight="Bold"/>
+                            </StackPanel>
+                            <Border Background="{StaticResource Panel}" BorderBrush="#1E1E26" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,18">
+                                <WrapPanel>
+                                    <RadioButton x:Name="ThemeDefault"  GroupName="Theme" Content="Default"  Margin="0,6,20,6"/>
+                                    <RadioButton x:Name="ThemeMidnight" GroupName="Theme" Content="Midnight" Margin="0,6,20,6"/>
+                                    <RadioButton x:Name="ThemeOcean"    GroupName="Theme" Content="Ocean"    Margin="0,6,20,6"/>
+                                    <RadioButton x:Name="ThemeAmber"    GroupName="Theme" Content="Amber"    Margin="0,6,0,6"/>
+                                </WrapPanel>
                             </Border>
 
                             <!-- Developer Options -->
                             <Grid Margin="0,0,0,8">
-                                <TextBlock Text="DEVELOPER OPTIONS" FontSize="10" Foreground="#666" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                <CheckBox x:Name="DevOptsToggle" Content="Enable" Foreground="#E0E0E4" HorizontalAlignment="Right" Checked="DevOpts_Changed" Unchecked="DevOpts_Changed"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="3" Height="12" Background="{StaticResource Warn}" CornerRadius="2" Margin="0,0,8,0"/>
+                                    <TextBlock Text="DEVELOPER OPTIONS" FontSize="10" Foreground="#8A8A95" FontWeight="Bold"/>
+                                </StackPanel>
+                                <CheckBox x:Name="DevOptsToggle" Content="Enable" HorizontalAlignment="Right" Checked="DevOpts_Changed" Unchecked="DevOpts_Changed"/>
                             </Grid>
-                            <Border x:Name="DevOptsPanel" Background="{StaticResource Panel}" CornerRadius="10" Padding="16" Margin="0,0,0,18" Visibility="Collapsed">
+                            <Border x:Name="DevOptsPanel" Background="{StaticResource Panel}" BorderBrush="#1E1E26" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,18" Visibility="Collapsed">
                                 <StackPanel>
                                     <Border Background="#2A1810" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,14">
                                         <TextBlock Foreground="#F8E8CC" FontSize="12" TextWrapping="Wrap" LineHeight="18">
@@ -344,8 +366,11 @@
                             </Border>
 
                             <!-- About -->
-                            <TextBlock Text="ABOUT" FontSize="10" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                            <Border Background="{StaticResource Panel}" CornerRadius="10" Padding="16" Margin="0,0,0,20">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Border Width="3" Height="12" Background="#555562" CornerRadius="2" Margin="0,0,8,0"/>
+                                <TextBlock Text="ABOUT" FontSize="10" Foreground="#8A8A95" FontWeight="Bold"/>
+                            </StackPanel>
+                            <Border Background="{StaticResource Panel}" BorderBrush="#1E1E26" BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,20">
                                 <StackPanel>
                                     <TextBlock Text="Temporary Spoofer" FontSize="13" FontWeight="SemiBold" Foreground="#E0E0E4"/>
                                     <TextBlock x:Name="AboutBuild" FontSize="11" Foreground="#666" Margin="0,4,0,0"/>
@@ -355,18 +380,21 @@
                         </StackPanel>
                     </ScrollViewer>
 
-                    <Grid Grid.Row="2" Margin="20,10,20,20">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Style="{StaticResource GhostBtn}" Padding="0,12" Margin="0,0,5,0" Click="SettingsClose_Click">
-                            <TextBlock Text="Close" Foreground="{StaticResource Text}" FontWeight="SemiBold" FontSize="13"/>
-                        </Button>
-                        <Button Grid.Column="1" Style="{StaticResource FlatBtn}" Padding="0,12" Margin="5,0,0,0" Click="SettingsSave_Click">
-                            <TextBlock Text="Save settings" Foreground="#0A0A0A" FontWeight="SemiBold" FontSize="13"/>
-                        </Button>
-                    </Grid>
+                    <!-- Sticky footer with top hairline -->
+                    <Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="#1A1A24" Background="#0C0C12">
+                        <Grid Margin="18,14,18,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Style="{StaticResource SolidBtn}" Padding="0,12" Margin="0,0,5,0" Click="SettingsClose_Click">
+                                <TextBlock Text="Cancel" Foreground="{StaticResource Text}" FontWeight="SemiBold" FontSize="13"/>
+                            </Button>
+                            <Button Grid.Column="1" Style="{StaticResource FlatBtn}" Padding="0,12" Margin="5,0,0,0" Click="SettingsSave_Click">
+                                <TextBlock Text="Save settings" Foreground="#0A0A0A" FontWeight="SemiBold" FontSize="13"/>
+                            </Button>
+                        </Grid>
+                    </Border>
                 </Grid>
             </Border>
 

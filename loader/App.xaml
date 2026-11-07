@@ -282,5 +282,221 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- =======================================================
+             Custom slim scrollbar (default for every ScrollBar)
+             - 6 px thumb, no arrows, brand glow on hover
+             ======================================================= -->
+        <Style x:Key="SlimScrollThumb" TargetType="Thumb">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="tb" Background="#2E2E3C" CornerRadius="3" Margin="2,2"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="tb" Property="Background" Value="#4A4A5C"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="tb" Property="Background" Value="{StaticResource Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ScrollBar">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Width"  Value="10"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="{TemplateBinding Background}">
+                            <Track Name="PART_Track" IsDirectionReversed="True">
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource SlimScrollThumb}"/>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0"/>
+                                </Track.IncreaseRepeatButton>
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0"/>
+                                </Track.DecreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Width"  Value="Auto"/>
+                    <Setter Property="Height" Value="10"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ScrollBar">
+                                <Grid Background="{TemplateBinding Background}">
+                                    <Track Name="PART_Track">
+                                        <Track.Thumb>
+                                            <Thumb Style="{StaticResource SlimScrollThumb}"/>
+                                        </Track.Thumb>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.PageRightCommand" Opacity="0"/>
+                                        </Track.IncreaseRepeatButton>
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.PageLeftCommand" Opacity="0"/>
+                                        </Track.DecreaseRepeatButton>
+                                    </Track>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Keep the ScrollViewer content from drawing under the bar -->
+        <Style TargetType="ScrollViewer">
+            <Setter Property="OverridesDefaultStyle" Value="False"/>
+        </Style>
+
+        <!-- =======================================================
+             Custom checkbox: 18px square, animated check-in on toggle
+             ======================================================= -->
+        <Style TargetType="CheckBox">
+            <Setter Property="FontFamily" Value="{StaticResource Poppins}"/>
+            <Setter Property="Foreground" Value="#E0E0E4"/>
+            <Setter Property="FontSize"   Value="12.5"/>
+            <Setter Property="Cursor"     Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <Grid Width="18" Height="18" VerticalAlignment="Center">
+                                <Border x:Name="box" Width="18" Height="18"
+                                        Background="#0F0F15" BorderBrush="#32323E"
+                                        BorderThickness="1.2" CornerRadius="4"/>
+                                <Border x:Name="boxFill" Width="18" Height="18" Opacity="0"
+                                        CornerRadius="4" Background="{StaticResource Accent}"/>
+                                <Path x:Name="tick" Data="M3,9 L7,13 L15,4"
+                                      Stroke="#0A0A0A" StrokeThickness="2.2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Width="14" Height="14" Stretch="Uniform"
+                                      Opacity="0" RenderTransformOrigin="0.5,0.5">
+                                    <Path.RenderTransform>
+                                        <ScaleTransform x:Name="tickS" ScaleX="0.4" ScaleY="0.4"/>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Grid>
+                            <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              TextElement.FontSize="{TemplateBinding FontSize}"
+                                              TextElement.FontFamily="{TemplateBinding FontFamily}"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="box" Property="BorderBrush" Value="{StaticResource AccentDeep}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="boxFill" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.14"/>
+                                            <DoubleAnimation Storyboard.TargetName="tick" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.14"/>
+                                            <DoubleAnimation Storyboard.TargetName="tickS" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.22">
+                                                <DoubleAnimation.EasingFunction><BackEase Amplitude="0.5" EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="tickS" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.22">
+                                                <DoubleAnimation.EasingFunction><BackEase Amplitude="0.5" EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="boxFill" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.14"/>
+                                            <DoubleAnimation Storyboard.TargetName="tick" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.14"/>
+                                            <DoubleAnimation Storyboard.TargetName="tickS" Storyboard.TargetProperty="ScaleX" To="0.4" Duration="0:0:0.14"/>
+                                            <DoubleAnimation Storyboard.TargetName="tickS" Storyboard.TargetProperty="ScaleY" To="0.4" Duration="0:0:0.14"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- =======================================================
+             Custom radio: 18px ring, brand fill pops when selected
+             ======================================================= -->
+        <Style TargetType="RadioButton">
+            <Setter Property="FontFamily" Value="{StaticResource Poppins}"/>
+            <Setter Property="Foreground" Value="#E0E0E4"/>
+            <Setter Property="FontSize"   Value="12.5"/>
+            <Setter Property="Cursor"     Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <Grid Width="18" Height="18" VerticalAlignment="Center">
+                                <Ellipse x:Name="ring" Width="18" Height="18"
+                                         Fill="#0F0F15" Stroke="#32323E" StrokeThickness="1.2"/>
+                                <Ellipse x:Name="dot" Width="9" Height="9" Fill="{StaticResource Accent}"
+                                         Opacity="0" RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <ScaleTransform x:Name="dotS" ScaleX="0.3" ScaleY="0.3"/>
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                            </Grid>
+                            <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              TextElement.FontSize="{TemplateBinding FontSize}"
+                                              TextElement.FontFamily="{TemplateBinding FontFamily}"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ring" Property="Stroke" Value="{StaticResource AccentDeep}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="ring" Property="Stroke" Value="{StaticResource Accent}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="dot"  Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.14"/>
+                                            <DoubleAnimation Storyboard.TargetName="dotS" Storyboard.TargetProperty="ScaleX"  To="1" Duration="0:0:0.22">
+                                                <DoubleAnimation.EasingFunction><BackEase Amplitude="0.6" EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="dotS" Storyboard.TargetProperty="ScaleY"  To="1" Duration="0:0:0.22">
+                                                <DoubleAnimation.EasingFunction><BackEase Amplitude="0.6" EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="dot"  Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.14"/>
+                                            <DoubleAnimation Storyboard.TargetName="dotS" Storyboard.TargetProperty="ScaleX"  To="0.3" Duration="0:0:0.14"/>
+                                            <DoubleAnimation Storyboard.TargetName="dotS" Storyboard.TargetProperty="ScaleY"  To="0.3" Duration="0:0:0.14"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>
