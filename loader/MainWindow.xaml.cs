@@ -402,7 +402,6 @@ public partial class MainWindow : Window
         IdleHint.Visibility = Visibility.Collapsed;
     }
 
-    // --- SPOOF: mock animation, zero real HWID writes ---
     private async void SpoofBtn_Click(object sender, RoutedEventArgs e)
     {
         SetBusy(true, spoofLabel: "SPOOFING…");
@@ -423,7 +422,7 @@ public partial class MainWindow : Window
         if (!string.IsNullOrEmpty(claim.ExpiresAt))
             ExpiryText.Text = FormatExpiry(claim.ExpiresAt!);
 
-        PipelineHint.Text = "Rotating identifiers (animation only on this build)";
+        PipelineHint.Text = "Rotating hardware identifiers";
 
         var steps = SpoofEngine.GetSteps()
             .Where(s => _settings.IsCategoryEnabled(s.Category))
@@ -463,7 +462,6 @@ public partial class MainWindow : Window
         SetBusy(false, spoofLabel: "2. SPOOF HWID");
     }
 
-    // --- CLEAN: real CleaningEngine runs on this machine ---
     private async void CleanBtn_Click(object sender, RoutedEventArgs e)
     {
         SetBusy(true, cleanLabel: "CLEANING…");

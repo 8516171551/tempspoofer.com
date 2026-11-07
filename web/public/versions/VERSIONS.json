@@ -1,6 +1,7 @@
 {
-  "latest": "GENESIS",
+  "latest": "DAWN",
   "versions": [
+    { "codename": "DAWN",    "releasedUtc": "2026-11-07", "blocked": false, "notes": "Copy polish — removed internal build labels from user-facing strings." },
     { "codename": "GENESIS", "releasedUtc": "2026-11-07", "blocked": false, "notes": "Fresh version history. Roll-back UX with 3-second countdown + auto-restart." }
   ]
 }

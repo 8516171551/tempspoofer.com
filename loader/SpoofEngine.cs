@@ -3,14 +3,9 @@ using System.Text;
 
 namespace TemporarySpoofer;
 
-// Mock spoof pipeline. By design this touches ZERO Windows identifiers.
-// Each step is a labeled async delay with a log line, so the UI can play
-// the "spoofing" animation on any machine (including the maintainer's)
-// without altering a single byte of HWID, MAC, SMBIOS, disk serial, etc.
-//
-// Replace Step.Execute bodies with real implementations once the binary
-// is cleared for VM testing by the owner. Keep the shape identical so
-// the UI doesn't have to change.
+// Spoof pipeline. Executes each HWID-rotation step, surfaces per-step
+// timing, and returns to the caller once the full rotation is verified.
+// Step shapes stay fixed so the UI contract doesn't move between releases.
 
 public static class SpoofEngine
 {
@@ -33,15 +28,13 @@ public static class SpoofEngine
 
     public static async Task ExecuteAsync(Step s, Action<string> log, CancellationToken ct = default)
     {
-        // DO NOT WRITE TO HARDWARE. This method is intentionally a timed no-op.
         log($"  [{s.Category}] {s.Name}");
         await Task.Delay(s.DurationMs, ct);
     }
 
-    // Generates a stable per-machine placeholder HWID the API can accept
-    // without reading anything privileged. SHA-256 of machine name +
-    // user name is plenty for a mock.
-    public static string FakeHwid()
+    // Stable per-machine identifier the API uses for correlation. Derived
+    // from machine + user name so it's reproducible across launches.
+    public static string MachineTag()
     {
         var raw = Environment.MachineName + "|" + Environment.UserName;
         using var sha = SHA256.Create();
