@@ -18,11 +18,23 @@ public partial class App : Application
         };
     }
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         try
         {
             base.OnStartup(e);
+
+            // Version pinning: if the user picked an older release under
+            // Settings > Developer Options, download it and re-launch into
+            // that binary before showing any UI. The pinned exe really IS
+            // the older build, so its code paths are what runs from here.
+            var settings = UserSettings.Load();
+            if (await VersionManager.MaybeRelaunchIntoPinnedAsync(settings))
+            {
+                Shutdown(0);
+                return;
+            }
+
             Window w;
 #if RESELLER
             w = new LoginWindow();

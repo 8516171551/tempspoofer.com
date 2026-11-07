@@ -11,6 +11,8 @@ namespace TemporarySpoofer;
 public partial class MainWindow : Window
 {
     private readonly ObservableCollection<StepItem> _steps = new();
+    private readonly UserSettings _settings = UserSettings.Load();
+    private IReadOnlyList<VersionManager.Entry> _versions = Array.Empty<VersionManager.Entry>();
     private DateTime _startTime;
     private bool _authed;
 
@@ -34,6 +36,205 @@ public partial class MainWindow : Window
                 FinishAuth();
             }
         };
+    }
+
+    // ---------------- Settings overlay ----------------
+
+    private void SettingsBtn_Click(object sender, RoutedEventArgs e)
+    {
+        BindSettingsToUi();
+        AboutBuild.Text = $"Build {Build.Codename}  ·  released {Build.ReleasedUtc}";
+        var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220))
+        { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+        SettingsOverlay.IsHitTestVisible = true;
+        SettingsOverlay.BeginAnimation(OpacityProperty, fade);
+        _ = LoadVersionListAsync();
+    }
+
+    private void SettingsClose_Click(object sender, RoutedEventArgs e)
+    {
+        var fade = new DoubleAnimation(SettingsOverlay.Opacity, 0, TimeSpan.FromMilliseconds(180));
+        fade.Completed += (_, _) => SettingsOverlay.IsHitTestVisible = false;
+        SettingsOverlay.BeginAnimation(OpacityProperty, fade);
+    }
+
+    private void SettingsSave_Click(object sender, RoutedEventArgs e)
+    {
+        PullSettingsFromUi();
+        _settings.Save();
+        SettingsClose_Click(sender, e);
+    }
+
+    private void DevOpts_Changed(object sender, RoutedEventArgs e)
+    {
+        DevOptsPanel.Visibility = DevOptsToggle.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void BindSettingsToUi()
+    {
+        CompNetwork.IsChecked = _settings.SpoofNetwork;
+        CompStorage.IsChecked = _settings.SpoofStorage;
+        CompSystem.IsChecked  = _settings.SpoofSystem;
+        CompCache.IsChecked   = _settings.SpoofCache;
+        CompAudit.IsChecked   = _settings.SpoofAudit;
+        CompVerify.IsChecked  = _settings.SpoofVerify;
+        CompBackup.IsChecked  = _settings.SpoofBackup;
+
+        ModeStealth.IsChecked  = _settings.Mode == "stealth";
+        ModeTurbo.IsChecked    = _settings.Mode == "turbo";
+        ModeCautious.IsChecked = _settings.Mode == "cautious";
+
+        ThemeDefault.IsChecked  = _settings.Theme == "default";
+        ThemeMidnight.IsChecked = _settings.Theme == "midnight";
+        ThemeOcean.IsChecked    = _settings.Theme == "ocean";
+        ThemeAmber.IsChecked    = _settings.Theme == "amber";
+
+        DevOptsToggle.IsChecked = _settings.DeveloperOptions;
+        DevOptsPanel.Visibility = _settings.DeveloperOptions ? Visibility.Visible : Visibility.Collapsed;
+
+        PinnedHint.Text = string.IsNullOrEmpty(_settings.PinnedVersion)
+            ? "Running latest."
+            : $"Pinned to {_settings.PinnedVersion} — restart loader to apply.";
+    }
+
+    private void PullSettingsFromUi()
+    {
+        _settings.SpoofNetwork = CompNetwork.IsChecked == true;
+        _settings.SpoofStorage = CompStorage.IsChecked == true;
+        _settings.SpoofSystem  = CompSystem.IsChecked  == true;
+        _settings.SpoofCache   = CompCache.IsChecked   == true;
+        _settings.SpoofAudit   = CompAudit.IsChecked   == true;
+        _settings.SpoofVerify  = CompVerify.IsChecked  == true;
+        _settings.SpoofBackup  = CompBackup.IsChecked  == true;
+
+        if (ModeTurbo.IsChecked == true)         _settings.Mode = "turbo";
+        else if (ModeCautious.IsChecked == true) _settings.Mode = "cautious";
+        else                                     _settings.Mode = "stealth";
+
+        if (ThemeMidnight.IsChecked == true)     _settings.Theme = "midnight";
+        else if (ThemeOcean.IsChecked == true)   _settings.Theme = "ocean";
+        else if (ThemeAmber.IsChecked == true)   _settings.Theme = "amber";
+        else                                     _settings.Theme = "default";
+
+        _settings.DeveloperOptions = DevOptsToggle.IsChecked == true;
+    }
+
+    private async Task LoadVersionListAsync()
+    {
+        VersionsLoading.Visibility = Visibility.Visible;
+        VersionList.Items.Clear();
+        _versions = await VersionManager.ListAsync();
+        VersionsLoading.Visibility = _versions.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (_versions.Count == 0)
+        {
+            VersionsLoading.Text = "Couldn't reach server.";
+            return;
+        }
+        foreach (var v in _versions) VersionList.Items.Add(BuildVersionRow(v));
+    }
+
+    private UIElement BuildVersionRow(VersionManager.Entry v)
+    {
+        var isCurrent = string.Equals(v.Codename, Build.Codename, StringComparison.OrdinalIgnoreCase);
+        var isPinned  = string.Equals(v.Codename, _settings.PinnedVersion, StringComparison.OrdinalIgnoreCase);
+
+        var card = new System.Windows.Controls.Border
+        {
+            Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x10, 0x10, 0x18)),
+            BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x1E, 0x1E, 0x26)),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(12, 10, 12, 10),
+            Margin = new Thickness(0, 0, 0, 6),
+        };
+        var grid = new System.Windows.Controls.Grid();
+        grid.ColumnDefinitions.Add(new System.Windows.Controls.ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new System.Windows.Controls.ColumnDefinition { Width = GridLength.Auto });
+
+        var sp = new System.Windows.Controls.StackPanel { VerticalAlignment = VerticalAlignment.Center };
+        var header = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+        header.Children.Add(new System.Windows.Controls.TextBlock
+        {
+            Text = v.Codename,
+            FontSize = 13, FontWeight = FontWeights.SemiBold,
+            Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xE0, 0xE0, 0xE4)),
+        });
+        if (v.IsLatest || isCurrent) header.Children.Add(BuildBadge(isCurrent ? "RUNNING" : "LATEST", 0x16, 0xA3, 0x4A));
+        if (isPinned && !isCurrent)  header.Children.Add(BuildBadge("PINNED",  0xB2, 0xD6, 0xF8));
+        if (v.Blocked)               header.Children.Add(BuildBadge("BLOCKED", 0xDC, 0x26, 0x26));
+        sp.Children.Add(header);
+        sp.Children.Add(new System.Windows.Controls.TextBlock
+        {
+            Text = $"Released {v.ReleasedUtc}",
+            FontSize = 10, Margin = new Thickness(0, 3, 0, 0),
+            Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x66, 0x66, 0x70)),
+        });
+        System.Windows.Controls.Grid.SetColumn(sp, 0);
+        grid.Children.Add(sp);
+
+        var btn = new System.Windows.Controls.Button
+        {
+            Style = isCurrent || isPinned ? (Style)FindResource("GhostBtn") : (Style)FindResource("FlatBtn"),
+            Padding = new Thickness(14, 6, 14, 6),
+            MinWidth = 110,
+            VerticalAlignment = VerticalAlignment.Center,
+            IsEnabled = !v.Blocked && !isPinned,
+            Content = new System.Windows.Controls.TextBlock
+            {
+                Text = isCurrent ? "Unpin"
+                     : isPinned  ? "Pinned"
+                     : "Use this",
+                FontSize = 12, FontWeight = FontWeights.SemiBold,
+                Foreground = new System.Windows.Media.SolidColorBrush(
+                    (isCurrent || isPinned)
+                        ? System.Windows.Media.Color.FromRgb(0xE0, 0xE0, 0xE4)
+                        : System.Windows.Media.Color.FromRgb(0x0A, 0x0A, 0x0A)),
+            },
+        };
+        btn.Click += (_, _) => OnPickVersion(v, isCurrent);
+        System.Windows.Controls.Grid.SetColumn(btn, 1);
+        grid.Children.Add(btn);
+        card.Child = grid;
+        return card;
+    }
+
+    private static System.Windows.Controls.Border BuildBadge(string text, byte r, byte g, byte b)
+    {
+        return new System.Windows.Controls.Border
+        {
+            Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x33, r, g, b)),
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(6, 1, 6, 1),
+            Margin = new Thickness(8, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+            Child = new System.Windows.Controls.TextBlock
+            {
+                Text = text,
+                FontSize = 9,
+                FontWeight = FontWeights.Bold,
+                Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(r, g, b)),
+            },
+        };
+    }
+
+    private void OnPickVersion(VersionManager.Entry v, bool isCurrent)
+    {
+        if (isCurrent)
+        {
+            // Clear pin — next launch stays on whatever the server marks latest.
+            _settings.PinnedVersion = null;
+        }
+        else
+        {
+            _settings.PinnedVersion = v.Codename;
+        }
+        _settings.Save();
+        PinnedHint.Text = string.IsNullOrEmpty(_settings.PinnedVersion)
+            ? "Running latest."
+            : $"Pinned to {_settings.PinnedVersion} — restart loader to apply.";
+        // Rebuild rows so badges + button states update.
+        VersionList.Items.Clear();
+        foreach (var row in _versions) VersionList.Items.Add(BuildVersionRow(row));
     }
 
     private async Task AuthByIpAsync()
@@ -125,7 +326,15 @@ public partial class MainWindow : Window
 
         PipelineHint.Text = "Rotating identifiers (animation only on this build)";
 
-        var steps = SpoofEngine.GetSteps();
+        var steps = SpoofEngine.GetSteps()
+            .Where(s => _settings.IsCategoryEnabled(s.Category))
+            .ToList();
+        if (steps.Count == 0)
+        {
+            PipelineHint.Text = "No spoof components enabled in Settings.";
+            SetBusy(false, spoofLabel: "2. SPOOF HWID");
+            return;
+        }
         foreach (var s in steps)
             _steps.Add(new StepItem { Name = s.Name, Category = s.Category, State = StepState.Pending });
 

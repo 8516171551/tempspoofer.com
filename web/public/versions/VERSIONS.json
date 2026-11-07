@@ -1,0 +1,10 @@
+{
+  "latest": "NIGHTFALL",
+  "versions": [
+    { "codename": "NIGHTFALL", "releasedUtc": "2026-11-07", "blocked": false, "notes": "Settings panel, developer options, version pinning." },
+    { "codename": "ECLIPSE",   "releasedUtc": "2026-11-07", "blocked": false, "notes": "Reboot warning on success overlay." },
+    { "codename": "SPECTRE",   "releasedUtc": "2026-11-07", "blocked": false, "notes": "Reseller branding — loader title picks up the reseller's brand name." },
+    { "codename": "OBSIDIAN",  "releasedUtc": "2026-11-07", "blocked": false, "notes": "STATUS tile shows UNDETECTED in green." },
+    { "codename": "VANTA",     "releasedUtc": "2026-11-06", "blocked": false, "notes": "Metric row rebrand + hide IP/key in title bar." }
+  ]
+}
