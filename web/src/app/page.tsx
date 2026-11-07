@@ -43,7 +43,7 @@ function Hero() {
     <section className="max-w-6xl mx-auto px-5 sm:px-6 pt-14 sm:pt-20 pb-20 sm:pb-24 text-center">
       <div className="reveal inline-flex items-center gap-2 border border-[#26262c] bg-[#111113] rounded-full px-3 py-1 text-xs text-zinc-400 mb-6">
         <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        Live now — per-session passes from $4.99
+        Live now — per-session passes from $2.99
       </div>
       <h1 className="reveal d-50 text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.05]">
         Spoof your <span className="bg-gradient-to-r from-brand-300 to-brand-200 bg-clip-text text-transparent">hardware</span>.<br />

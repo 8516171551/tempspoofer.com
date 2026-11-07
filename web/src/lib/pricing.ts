@@ -10,9 +10,9 @@ export const CONSUMER_PRICING: Record<ConsumerTier, {
   blurb: string;
   durationHours: number;
 }> = {
-  day:   { name: "Day Pass",   priceCents:  499, blurb: "24 hour spoof",  durationHours:  24 },
-  week:  { name: "Week Pass",  priceCents: 1499, blurb: "7 day spoof",    durationHours: 168 },
-  month: { name: "Month Pass", priceCents: 3999, blurb: "30 day spoof",   durationHours: 720 },
+  day:   { name: "Day Pass",   priceCents:  299, blurb: "24 hour spoof",  durationHours:  24 },
+  week:  { name: "Week Pass",  priceCents:  999, blurb: "7 day spoof",    durationHours: 168 },
+  month: { name: "Month Pass", priceCents: 1999, blurb: "30 day spoof",   durationHours: 720 },
 };
 
 export const RESELLER_PRICING: Record<ResellerTier, {
