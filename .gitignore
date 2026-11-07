@@ -13,3 +13,4 @@ publish/
 drizzle/meta/_journal.json.backup
 tools/
 loader/bin/Protected/
+attack/
