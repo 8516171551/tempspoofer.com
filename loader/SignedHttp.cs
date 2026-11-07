@@ -14,17 +14,16 @@ namespace TemporarySpoofer;
 // (e.g. corp proxy with their own root) but logs that we did.
 public static class SignedHttp
 {
-    // SPKI SHA-256 of ISRG Root X1 (Let's Encrypt). If LE ever rotates roots
-    // we add the new one here; both are accepted.
-    private static readonly HashSet<string> PinnedRootSpki = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "C45D7BB08E6D67E62E4235110B564E5F78FD92EF058C840AEA4E6455D7585C60", // ISRG Root X1
-        "8ECDE6884F3D87B1125BA31AC3FCB13D7016DE7F57CC904FE1CB97C6AE98196E", // ISRG Root X2
-    };
+    // SPKI pinning was blocking the loader on Let's Encrypt's new YR2 chain
+    // (Vercel-fronted traffic lands on intermediates whose roots don't always
+    // appear where net48 ChainElements[last] expects). Disabled for now and
+    // documented in SECURITY.md — we're back to OS chain validation plus
+    // hostname check, which is what every browser does by default.
+    //
+    // To re-enable pinning safely we need to track Let's Encrypt's current
+    // intermediate CAs (R10, R11, E5, E6, YR2…) and refresh via the
+    // maintainer-owned VERSIONS.json rather than baking them into the exe.
 
-    // Install once at process start (net48 uses the global callback hook).
-    // Only enforces the pin for tempspoofer.com; other hosts fall through to
-    // default OS chain validation so legitimate corporate TLS still works.
     private static bool _pinInstalled;
     public static void InstallCertPin()
     {
@@ -33,18 +32,38 @@ public static class SignedHttp
         ServicePointManager.ServerCertificateValidationCallback +=
             (sender, cert, chain, errors) =>
             {
-                if (sender is HttpWebRequest req && !req.RequestUri.Host.EndsWith("tempspoofer.com", StringComparison.OrdinalIgnoreCase))
-                    return errors == SslPolicyErrors.None; // default-validate other hosts
+                // For our own API host we require (a) OS-valid chain, (b) leaf
+                // SAN or CN covers *.tempspoofer.com or tempspoofer.com. Any
+                // other host falls through to pure OS validation.
+                if (sender is HttpWebRequest req)
+                {
+                    if (!req.RequestUri.Host.EndsWith("tempspoofer.com", StringComparison.OrdinalIgnoreCase))
+                        return errors == SslPolicyErrors.None;
+                }
                 if (errors != SslPolicyErrors.None) return false;
-                if (chain is null || chain.ChainElements.Count == 0) return false;
                 try
                 {
-                    var root = chain.ChainElements[chain.ChainElements.Count - 1].Certificate;
-                    var spki = SHA256.Create().ComputeHash(root.GetPublicKey());
-                    var hex  = BitConverter.ToString(spki).Replace("-", "");
-                    return PinnedRootSpki.Contains(hex);
+                    if (cert is X509Certificate2 c2)
+                    {
+                        var subj = c2.Subject ?? "";
+                        if (!subj.IndexOf("tempspoofer.com", StringComparison.OrdinalIgnoreCase).Equals(-1))
+                            return true;
+                        foreach (var ext in c2.Extensions)
+                        {
+                            if (ext.Oid?.Value == "2.5.29.17" /* SAN */ &&
+                                (ext.Format(false) ?? "").IndexOf("tempspoofer.com", StringComparison.OrdinalIgnoreCase) >= 0)
+                                return true;
+                        }
+                    }
+                    else if (cert != null)
+                    {
+                        // Fallback for net48 when cert isn't X509Certificate2 for some reason
+                        if ((cert.Subject ?? "").IndexOf("tempspoofer.com", StringComparison.OrdinalIgnoreCase) >= 0)
+                            return true;
+                    }
                 }
-                catch { return false; }
+                catch { /* fall through to deny */ }
+                return false;
             };
     }
 

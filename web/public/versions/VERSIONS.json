@@ -1,7 +1,8 @@
 {
-  "latest": "VAULT",
+  "latest": "CIPHER",
   "versions": [
-    { "codename": "VAULT",     "releasedUtc": "2026-11-07", "blocked": false, "notes": "Security pass: signed requests, DPAPI install identity, cert pinning, anti-debug, rate limiting, HMAC settings, revocation." },
+    { "codename": "CIPHER",    "releasedUtc": "2026-11-07", "blocked": false, "notes": "Hotfix: loosened TLS cert pin — VAULT's strict root pin was blocking Vercel's Let's Encrypt YR2 chain." },
+    { "codename": "VAULT",     "releasedUtc": "2026-11-07", "blocked": true,  "notes": "Blocked: cert pin was too strict and blocked all server calls. Use CIPHER or newer." },
     { "codename": "ONYX",      "releasedUtc": "2026-11-07", "blocked": false, "notes": "Custom scrollbars, checkboxes, radios; redesigned Settings tab." },
     { "codename": "NIGHTFALL", "releasedUtc": "2026-11-07", "blocked": false, "notes": "Settings panel, developer options, version pinning." },
     { "codename": "ECLIPSE",   "releasedUtc": "2026-11-07", "blocked": false, "notes": "Reboot warning on success overlay." },
