@@ -93,6 +93,8 @@ export const installs = pgTable("ts_installs", {
 export const accounts = pgTable("ts_accounts", {
   id:          text("id").primaryKey(),              // e.g. ACC_a1b2c3d4
   secretHash:  text("secret_hash").notNull(),        // bcrypt of master code
+  // Friendly name the user picks via the pen button. Null => we show id.
+  displayName: text("display_name"),
   firstIp:     text("first_ip"),
   lastIp:      text("last_ip"),
   lastSeenAt:  timestamp("last_seen_at"),

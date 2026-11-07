@@ -25,6 +25,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     ok: true,
     id: acc.id,
+    displayName: acc.displayName ?? null,
     ipHasAccount: true,
     isReseller: !!acc.isReseller,
     brandName: acc.brandName ?? null,

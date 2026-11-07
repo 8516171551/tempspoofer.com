@@ -10,6 +10,43 @@ import { useState } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 
+/* Custom-styled confirmation checkbox — native inputs are too generic for
+   a gate screen where each click is a hard acknowledgement. */
+function ConfirmCheck({ checked, onToggle, label }: {
+  checked: boolean; onToggle: (v: boolean) => void; label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onToggle(!checked)}
+      className={`w-full text-left flex items-start gap-3 p-3 rounded-lg
+                  border transition-colors cursor-pointer
+                  ${checked
+                    ? "border-brand-300/50 bg-[#0F161F]"
+                    : "border-[#232323] bg-[#0C0C0C] hover:border-[#3A3A3A] hover:bg-[#101010]"}`}
+      aria-pressed={checked}
+    >
+      <span
+        className={`mt-0.5 shrink-0 w-[20px] h-[20px] rounded-md flex items-center justify-center
+                    border transition-all duration-150
+                    ${checked
+                      ? "bg-brand-300 border-brand-300 scale-100"
+                      : "bg-transparent border-[#3A3A3A] scale-95"}`}
+      >
+        {checked && (
+          <svg viewBox="0 0 16 16" width="12" height="12" fill="none" aria-hidden>
+            <path d="M3 8.5 L6.5 12 L13 4.5" stroke="#000" strokeWidth="2.2"
+                  strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </span>
+      <span className={`text-[13px] leading-snug ${checked ? "text-ink" : "text-ink-2"}`}>
+        {label}
+      </span>
+    </button>
+  );
+}
+
 type Phase = "choose" | "login" | "saved";
 
 export function GateClient() {
@@ -154,25 +191,22 @@ export function GateClient() {
               Copy to clipboard
             </button>
 
-            <div className="space-y-3 mb-6">
+            <div className="space-y-2 mb-6">
               {[
                 "I have copied this code to a safe place (password manager, notes, printed).",
                 "I understand there is no recovery, no email reset, no support override.",
                 "I understand that losing this code means a brand new, empty account.",
               ].map((label, i) => (
-                <label key={i} className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={checks[i]}
-                    onChange={(e) => {
-                      const c = [...checks] as [boolean, boolean, boolean];
-                      c[i] = e.target.checked;
-                      setChecks(c);
-                    }}
-                    className="mt-0.5 w-[18px] h-[18px] accent-brand-300 shrink-0"
-                  />
-                  <span className="text-[13px] text-ink-2 leading-snug">{label}</span>
-                </label>
+                <ConfirmCheck
+                  key={i}
+                  checked={checks[i]}
+                  onToggle={(v) => {
+                    const c = [...checks] as [boolean, boolean, boolean];
+                    c[i] = v;
+                    setChecks(c);
+                  }}
+                  label={label}
+                />
               ))}
             </div>
 

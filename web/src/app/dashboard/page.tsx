@@ -9,6 +9,7 @@ import { clientIp } from "@/lib/ip";
 import { CONSUMER_PRICING, fmtUsd } from "@/lib/pricing";
 import { Logo } from "@/components/Logo";
 import { DashboardActions } from "./actions";
+import { NameEditor } from "./NameEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -43,13 +44,45 @@ export default async function Dashboard() {
 
       <div className="max-w-[920px] mx-auto px-5 sm:px-6 py-10 sm:py-14">
         <div className="eyebrow mb-3">[account]</div>
-        <div className="flex items-baseline gap-4 flex-wrap mb-10">
-          <div className="font-mono text-[22px] sm:text-[28px] text-ink">{acc.id}</div>
+        <div className="flex items-center gap-4 flex-wrap mb-3">
+          <NameEditor id={acc.id} initial={acc.displayName} />
           <span className={`chip ${active ? "" : "opacity-60"}`}>
             <span className="chip-dot" style={active ? undefined : { background: "#6E6E6E", boxShadow: "none" }}/>
             {active ? "pass active" : "no active pass"}
           </span>
         </div>
+        {acc.displayName && (
+          <div className="text-[11px] text-ink-3 font-mono mb-10">id: {acc.id}</div>
+        )}
+        {!acc.displayName && <div className="mb-10" />}
+
+        {/* Supports strip — tells the visitor what this actually beats */}
+        <section className="hair-t hair-b py-5 sm:py-6 mb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-5 sm:gap-2 items-center">
+            <div className="sm:col-span-1">
+              <div className="eyebrow mb-1">[ supports ]</div>
+              <div className="text-[12px] text-ink-2">tested + bypassed</div>
+            </div>
+            {["EAC", "BattlEye", "Vanguard", "Ricochet"].map((n) => (
+              <div key={n} className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-300 shrink-0" style={{ boxShadow: "0 0 8px rgba(178,214,248,.9)" }} />
+                <span className="text-[14px] sm:text-[15px] font-medium text-ink tracking-tight">{n}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 pt-4 border-t border-[#1A1A1A] grid grid-cols-2 sm:grid-cols-5 gap-5 sm:gap-2 items-center">
+            <div className="sm:col-span-1">
+              <div className="eyebrow mb-1">[ inbuilt ]</div>
+              <div className="text-[12px] text-ink-2">on every run</div>
+            </div>
+            {["Trace cleaner", "Registry sweep", "Cache wipe", "Session reset"].map((n) => (
+              <div key={n} className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-300 shrink-0" style={{ boxShadow: "0 0 8px rgba(178,214,248,.9)" }} />
+                <span className="text-[14px] sm:text-[15px] font-medium text-ink tracking-tight">{n}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* Active-pass panel */}
         {active && lic && (
@@ -110,8 +143,58 @@ export default async function Dashboard() {
             </p>
           </section>
         )}
+
+        {/* FAQ — no landing page, so the honest copy lives here */}
+        <section className="mb-14">
+          <div className="eyebrow mb-3">[ faq ]</div>
+          <div className="hair-t">
+            <Faq
+              q="Why is there no landing page?"
+              a={<>
+                Our service runs with 100% confidence. We didn&rsquo;t make this to get rich &mdash;
+                we just wanted to provide a <span className="text-ink">cheap premium solution</span> to
+                those who know&nbsp;;). We&rsquo;re not the same as your 0815 pasted spoofer that gets
+                you delay-banned within two games. We provide <span className="text-ink">full
+                virtualization on the hardware level</span>. Too much tech info you shouldn&rsquo;t
+                worry about &mdash; just know we are the best solution.
+              </>}
+            />
+            <Faq
+              q="What anti-cheats does this work on?"
+              a="EAC, BattlEye, Vanguard, and Ricochet, plus every retail launcher's own hardware fingerprint. If a game runs on Windows 10/11 x64, the loader covers it."
+            />
+            <Faq
+              q="Will I get banned using this?"
+              a="We spoof every identifier Windows surfaces, every run, before the anti-cheat loads. The pass window is short on purpose — you use it, you move on, nothing stays on disk to fingerprint later."
+            />
+            <Faq
+              q="What happens when my pass ends?"
+              a="The loader reverts every identifier to its original value automatically. There is nothing to uninstall, no registry residue, no scheduled task left running."
+            />
+            <Faq
+              q="Lost my code — how do I recover?"
+              a="You can't. The code is the only credential; we store a bcrypt hash of it and cannot reverse it. Create a fresh account and buy a new pass — accounts are free to make."
+            />
+          </div>
+        </section>
       </div>
     </main>
+  );
+}
+
+function Faq({ q, a }: { q: string; a: React.ReactNode }) {
+  return (
+    <details className="group hair-b">
+      <summary className="list-none cursor-pointer py-5 sm:py-6 flex items-center justify-between gap-4">
+        <span className="text-[15px] sm:text-[16px] font-medium tracking-tight text-ink">{q}</span>
+        <span className="shrink-0 w-6 h-6 flex items-center justify-center text-ink-3 transition-transform group-open:rotate-45">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden><path d="M8 2 V14 M2 8 H14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+        </span>
+      </summary>
+      <div className="pb-6 text-[13.5px] leading-relaxed text-ink-2 max-w-3xl">
+        {a}
+      </div>
+    </details>
   );
 }
 

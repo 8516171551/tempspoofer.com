@@ -118,6 +118,7 @@ const DDL: string[] = [
     created_at    TIMESTAMP NOT NULL DEFAULT NOW()
   )`,
   `CREATE INDEX IF NOT EXISTS ts_accounts_last_ip_idx ON ts_accounts (last_ip)`,
+  `ALTER TABLE ts_accounts ADD COLUMN IF NOT EXISTS display_name TEXT`,
 
   `CREATE TABLE IF NOT EXISTS ts_ip_bindings (
     ip          TEXT PRIMARY KEY,
