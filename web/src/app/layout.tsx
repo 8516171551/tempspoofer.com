@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Instrument_Serif } from "next/font/google";
+import { PermspooferBanner } from "@/components/PermspooferBanner";
 import "./globals.css";
 
 const serif = Instrument_Serif({
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`dark ${GeistSans.variable} ${GeistMono.variable} ${serif.variable}`}>
       <body className="min-h-screen bg-[#0A0A0A] text-zinc-100 antialiased font-sans">
+        <PermspooferBanner />
         {children}
       </body>
     </html>
