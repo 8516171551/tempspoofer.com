@@ -34,6 +34,28 @@ html, body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+
+  /* App-like mobile behavior */
+  overflow-x: hidden;              /* no horizontal scroll anywhere */
+  overscroll-behavior-y: none;     /* no bounce on iOS Safari */
+  overscroll-behavior-x: none;
+  -webkit-text-size-adjust: 100%;  /* iOS doesn't rescale text on rotation */
+  touch-action: pan-y;             /* only vertical scroll — kills pinch */
+  width: 100%;
+  max-width: 100vw;
+}
+
+body {
+  min-height: 100dvh;              /* dynamic viewport — handles mobile URL bar */
+}
+
+/* Prevent any oversized child from pushing horizontal scroll */
+img, video, svg, pre, code { max-width: 100%; }
+
+/* Tap targets — 44px min per Apple/Google HIG */
+button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;      /* no 300ms double-tap zoom delay */
 }
 
 a { color: inherit; text-decoration: none; }
@@ -41,8 +63,14 @@ a { color: inherit; text-decoration: none; }
 /* ============= TYPE ============= */
 .display  { font-family: var(--font-serif); font-weight: 400; letter-spacing: -0.03em; line-height: 0.95; font-style: italic; }
 .eyebrow  { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
-.lead     { font-size: clamp(16px, 1.3vw, 19px); line-height: 1.5; color: var(--ink-2); }
+.lead     { font-size: clamp(15px, 1.3vw, 19px); line-height: 1.5; color: var(--ink-2); }
 .mono     { font-family: var(--font-mono); }
+
+/* Fluid display sizes — shrink hard on mobile so no headline overflows */
+.d-hero  { font-size: clamp(44px, 12vw, 128px); line-height: 0.92; }
+.d-xl    { font-size: clamp(36px, 10vw, 112px); line-height: 0.95; }
+.d-lg    { font-size: clamp(32px, 8.5vw, 80px); line-height: 0.96; }
+.d-md    { font-size: clamp(28px, 7vw, 60px); line-height: 1; }
 
 ::selection { background: #B2D6F8; color: #000; }
 

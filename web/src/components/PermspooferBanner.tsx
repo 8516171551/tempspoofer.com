@@ -10,16 +10,19 @@ export function PermspooferBanner() {
       rel="noopener"
       className="group block w-full text-center bg-[#07070A] hover:bg-black
                  border-b border-white/5 transition-colors
-                 text-[12.5px] py-2.5 px-4 text-ink-2 hover:text-ink tracking-tight"
+                 text-[11px] sm:text-[12.5px] py-2 sm:py-2.5 px-3 sm:px-4
+                 text-ink-2 hover:text-ink tracking-tight"
     >
-      <span className="inline-flex items-center gap-2.5">
+      <span className="inline-flex items-center gap-2 sm:gap-2.5 max-w-full">
         <span
-          className="inline-block w-1.5 h-1.5 rounded-full bg-[#B2D6F8]"
+          className="inline-block w-1.5 h-1.5 rounded-full bg-[#B2D6F8] shrink-0"
           style={{ boxShadow: "0 0 10px rgba(178,214,248,.9)" }}
         />
-        <span className="opacity-70">Need a <em className="not-italic text-ink">permanent</em> spoof instead?</span>
-        <span className="font-semibold text-ink">Check out&nbsp;permspoofer.com</span>
-        <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+        <span className="opacity-70 hidden sm:inline">Need a <em className="not-italic text-ink">permanent</em> spoof instead?</span>
+        <span className="font-semibold text-ink truncate">
+          <span className="sm:hidden">Permanent spoof? </span>permspoofer.com
+        </span>
+        <span className="inline-block transition-transform group-hover:translate-x-1 shrink-0">→</span>
       </span>
     </a>
   );

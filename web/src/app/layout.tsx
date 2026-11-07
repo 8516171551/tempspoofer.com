@@ -1,9 +1,21 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Instrument_Serif } from "next/font/google";
 import { PermspooferBanner } from "@/components/PermspooferBanner";
 import "./globals.css";
+
+// Phone behaves like an app: no pinch zoom, no double-tap zoom, no bounce.
+// Browsers still respect prefers-reduced-motion and OS text-size scaling
+// for accessibility (they override user-scalable).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#0A0A0A",
+};
 
 const serif = Instrument_Serif({
   subsets: ["latin"],
@@ -16,7 +28,6 @@ export const metadata: Metadata = {
   title: "Temporary Spoofer — HWID spoofer for Windows",
   description:
     "Short-term HWID spoofer. Pay once, spoof for a session, rolls back when the window ends.",
-  themeColor: "#0A0A0A",
   openGraph: {
     title: "Temporary Spoofer",
     description: "Pay once. Spoof your hardware for a session.",
