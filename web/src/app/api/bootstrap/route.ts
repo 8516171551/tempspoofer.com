@@ -106,6 +106,25 @@ const DDL: string[] = [
     count       INTEGER NOT NULL DEFAULT 0
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS ts_rate_limits_unique ON ts_rate_limits (bucket, subject)`,
+
+  `CREATE TABLE IF NOT EXISTS ts_accounts (
+    id            TEXT PRIMARY KEY,
+    secret_hash   TEXT NOT NULL,
+    first_ip      TEXT,
+    last_ip       TEXT,
+    last_seen_at  TIMESTAMP,
+    is_reseller   BOOLEAN NOT NULL DEFAULT FALSE,
+    brand_name    TEXT,
+    created_at    TIMESTAMP NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE INDEX IF NOT EXISTS ts_accounts_last_ip_idx ON ts_accounts (last_ip)`,
+
+  `CREATE TABLE IF NOT EXISTS ts_ip_bindings (
+    ip          TEXT PRIMARY KEY,
+    account_id  TEXT NOT NULL,
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE INDEX IF NOT EXISTS ts_ip_bindings_account_idx ON ts_ip_bindings (account_id)`,
 ];
 
 export async function POST(req: Request) {

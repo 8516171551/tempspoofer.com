@@ -86,6 +86,29 @@ export const installs = pgTable("ts_installs", {
   installIdx: uniqueIndex("ts_installs_id_unique").on(t.installId),
 }));
 
+// Account = the persistent identity of a visitor. Every landing visit either
+// resolves one via the caller's IP (silent login) or mints a fresh one. The
+// master secret is the only credential; losing it = a new account. No email,
+// no password, no recovery.
+export const accounts = pgTable("ts_accounts", {
+  id:          text("id").primaryKey(),              // e.g. ACC_a1b2c3d4
+  secretHash:  text("secret_hash").notNull(),        // bcrypt of master code
+  firstIp:     text("first_ip"),
+  lastIp:      text("last_ip"),
+  lastSeenAt:  timestamp("last_seen_at"),
+  isReseller:  boolean("is_reseller").notNull().default(false),
+  brandName:   text("brand_name"),
+  createdAt:   timestamp("created_at").notNull().defaultNow(),
+});
+
+// Which account most recently used this IP. One row per IP; upserted on every
+// authenticated request so the gate page can silent-login returning visitors.
+export const ipBindings = pgTable("ts_ip_bindings", {
+  ip:         text("ip").primaryKey(),
+  accountId:  text("account_id").notNull(),
+  updatedAt:  timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Nonce replay cache — every signed request carries a client nonce + unix ts.
 // We insert on verify; a duplicate violates the unique index and the request
 // is refused. Rows self-expire via an occasional cleanup (anything older than
