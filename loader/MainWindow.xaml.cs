@@ -38,15 +38,11 @@ public partial class MainWindow : Window
 
     private async Task AuthByIpAsync()
     {
-        StatusText.Text = "Connecting";
-        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent");
         PipelineHint.Text = "Looking up a license bound to this IP…";
 
         var r = await Session.Api.AuthByIpAsync();
         if (!r.Ok)
         {
-            StatusText.Text = "No license";
-            StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
             IdleHeadline.Text = "No license on this network.";
             IdleSubline.Text  = "Buy a pass at tempspoofer.com, then rerun the loader.";
             PipelineHint.Text = r.Error ?? "Lookup failed.";
@@ -63,8 +59,6 @@ public partial class MainWindow : Window
     private void FinishAuth()
     {
         _authed = true;
-        StatusText.Text = "Ready";
-        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent");
 
         if (!string.IsNullOrEmpty(Session.ExpiresAt))
             ExpiryText.Text = FormatExpiry(Session.ExpiresAt);
@@ -113,16 +107,12 @@ public partial class MainWindow : Window
         _startTime = DateTime.Now;
 
 
-        StatusText.Text = "Claiming";
-        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
         ResetPipelineUi();
         PipelineHint.Text = "Activating license…";
 
         var claim = await Session.Api.ClaimAsync(Session.LicenseKey);
         if (!claim.Ok)
         {
-            StatusText.Text = "Rejected";
-            StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
             PipelineHint.Text = claim.Error ?? "Claim failed.";
             SetBusy(false, spoofLabel: "2. SPOOF HWID");
             return;
@@ -131,8 +121,6 @@ public partial class MainWindow : Window
         if (!string.IsNullOrEmpty(claim.ExpiresAt))
             ExpiryText.Text = FormatExpiry(claim.ExpiresAt!);
 
-        StatusText.Text = "Running";
-        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
         PipelineHint.Text = "Rotating identifiers (animation only on this build)";
 
         var steps = SpoofEngine.GetSteps();
@@ -154,8 +142,6 @@ public partial class MainWindow : Window
         }
 
 
-        StatusText.Text = "Complete";
-        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent");
         PipelineHint.Text = $"{total} steps · {(DateTime.Now - _startTime).TotalSeconds:F1}s";
 
         SuccessHeadline.Text = "Spoof active";
@@ -174,8 +160,6 @@ public partial class MainWindow : Window
         _startTime = DateTime.Now;
 
 
-        StatusText.Text = "Cleaning";
-        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Warn");
         ResetPipelineUi();
         PipelineHint.Text = "Running local trace sweep";
 
@@ -206,8 +190,6 @@ public partial class MainWindow : Window
         }
 
 
-        StatusText.Text = "Clean done";
-        StatusText.Foreground = (System.Windows.Media.Brush)FindResource("Accent");
         PipelineHint.Text = $"{total} steps · {(DateTime.Now - _startTime).TotalSeconds:F1}s";
 
         SuccessHeadline.Text = "Traces cleaned";
