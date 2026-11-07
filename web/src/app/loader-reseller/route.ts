@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const SCRIPT = `# Temporary Spoofer
+const SCRIPT = `& {
 $ErrorActionPreference = 'Stop'
 $ProgressPreference    = 'SilentlyContinue'
 
@@ -9,6 +9,12 @@ Write-Host '  Temporary Spoofer' -ForegroundColor White
 Write-Host '  -----------------' -ForegroundColor DarkGray
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+
+if ([Threading.Thread]::CurrentThread.GetApartmentState() -ne 'STA') {
+    Write-Host '  relaunching in STA host...' -ForegroundColor DarkGray
+    Start-Process -FilePath 'powershell.exe' -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-STA','-Command',"irm https://tempspoofer.com/loader-reseller | iex" -WindowStyle Hidden
+    return
+}
 
 Write-Host '  preparing...' -ForegroundColor DarkGray
 try {
@@ -24,36 +30,25 @@ if (-not $b -or $b.Length -lt 100000) {
 
 Write-Host '  starting...' -ForegroundColor Green
 
-Add-Type -AssemblyName PresentationFramework | Out-Null
-$iss = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
-$iss.ApartmentState = 'STA'
-$rs = [RunspaceFactory]::CreateRunspace($iss)
-$rs.Open()
-$ps = [PowerShell]::Create()
-$ps.Runspace = $rs
-[void]$ps.AddScript({
-    param([byte[]]$b)
+try {
+    Add-Type -AssemblyName PresentationFramework -ErrorAction Stop | Out-Null
     $asm = [Reflection.Assembly]::Load($b)
-    Add-Type -AssemblyName PresentationFramework | Out-Null
     [System.Windows.Application]::ResourceAssembly = $asm
     $entry = $asm.EntryPoint
-    $plen  = $entry.GetParameters().Length
-    if ($plen -eq 0) {
-        $entry.Invoke($null, @())
+    if ($entry.GetParameters().Length -eq 0) {
+        $entry.Invoke($null, @()) | Out-Null
     } else {
-        $entry.Invoke($null, (,[string[]]@()))
+        $entry.Invoke($null, (,[string[]]@())) | Out-Null
     }
-}).AddArgument($b) | Out-Null
-
-try {
-    $ps.Invoke() | Out-Null
 } catch {
     Write-Host "  startup error: $($_.Exception.Message)" -ForegroundColor Red
+    if ($_.Exception.InnerException) {
+        Write-Host "  inner: $($_.Exception.InnerException.Message)" -ForegroundColor Red
+    }
 } finally {
-    $ps.Dispose()
-    $rs.Close()
     $b = $null
     [GC]::Collect()
+}
 }
 `;
 
