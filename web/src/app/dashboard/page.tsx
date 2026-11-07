@@ -144,6 +144,12 @@ export default async function Dashboard() {
                   Parsec, or any virtual-LAN tunnel is detected and refused by the loader. Remote friends on
                   a different public IP need their own pass.
                 </p>
+                <p className="text-[11.5px] text-amber-300/90 mt-2 leading-snug">
+                  <span className="font-semibold">Paying on your phone?</span> Turn Wi-Fi on first and connect
+                  to the <span className="text-ink">same network as your PC</span>. If you pay over mobile data,
+                  the pass binds to your carrier IP, not your home &mdash; recovery to get it on your PC is a
+                  longer process.
+                </p>
               </div>
             </div>
           </div>
@@ -212,6 +218,19 @@ export default async function Dashboard() {
                 <span className="text-ink"> BattlEye</span> &mdash; the two biggest hardware-ban
                 stacks in play. If a game ships either of those on Windows 10/11 x64, the loader
                 covers it. <span className="text-ink-3">(Not Vanguard.)</span>
+              </>}
+            />
+            <Faq
+              q="Paying on my phone — anything to watch for?"
+              a={<>
+                <span className="text-ink">Yes &mdash; connect your phone to the same Wi-Fi as your PC
+                before checkout.</span> Passes bind to the public IP you pay from. If you check out over
+                mobile data, your license gets glued to your carrier IP, not your home router &mdash; and
+                when you run the loader on your PC, it won&rsquo;t find the pass automatically.
+                <br/><br/>
+                It&rsquo;s recoverable (hit the panel on your PC, use your recovery email or master code
+                to re-bind), but it&rsquo;s an extra five minutes you can skip by just flipping Wi-Fi on
+                before you hit pay.
               </>}
             />
             <Faq
