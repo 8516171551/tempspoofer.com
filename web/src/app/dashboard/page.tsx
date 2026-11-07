@@ -63,31 +63,26 @@ export default async function Dashboard() {
         )}
         {!acc.displayName && <div className="mb-10" />}
 
-        {/* Supports strip — tells the visitor what this actually beats */}
+        {/* Supports + trace cleaner — tighter, only the anti-cheats we actually bypass */}
         <section className="hair-t hair-b py-5 sm:py-6 mb-10">
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-5 sm:gap-2 items-center">
-            <div className="sm:col-span-1">
+          <div className="grid grid-cols-[auto_1fr] sm:grid-cols-[180px_1fr] gap-5 sm:gap-6 items-center">
+            <div>
               <div className="eyebrow mb-1">[ supports ]</div>
               <div className="text-[12px] text-ink-2">tested + bypassed</div>
             </div>
-            {["EAC", "BattlEye", "Vanguard", "Ricochet"].map((n) => (
-              <div key={n} className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-300 shrink-0" style={{ boxShadow: "0 0 8px rgba(178,214,248,.9)" }} />
-                <span className="text-[14px] sm:text-[15px] font-medium text-ink tracking-tight">{n}</span>
+            <div className="flex items-center gap-6 sm:gap-10 flex-wrap">
+              {["EAC", "BattlEye"].map((n) => (
+                <div key={n} className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-300 shrink-0" style={{ boxShadow: "0 0 8px rgba(178,214,248,.9)" }} />
+                  <span className="text-[15px] sm:text-[17px] font-medium text-ink tracking-tight">{n}</span>
+                </div>
+              ))}
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" style={{ boxShadow: "0 0 8px rgba(74,222,128,.9)" }} />
+                <span className="text-[15px] sm:text-[17px] font-medium text-ink tracking-tight">Trace cleaner</span>
+                <span className="text-[11px] text-ink-3 font-mono">on every run</span>
               </div>
-            ))}
-          </div>
-          <div className="mt-4 pt-4 border-t border-[#1A1A1A] grid grid-cols-2 sm:grid-cols-5 gap-5 sm:gap-2 items-center">
-            <div className="sm:col-span-1">
-              <div className="eyebrow mb-1">[ inbuilt ]</div>
-              <div className="text-[12px] text-ink-2">on every run</div>
             </div>
-            {["Trace cleaner", "Registry sweep", "Cache wipe", "Session reset"].map((n) => (
-              <div key={n} className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-300 shrink-0" style={{ boxShadow: "0 0 8px rgba(178,214,248,.9)" }} />
-                <span className="text-[14px] sm:text-[15px] font-medium text-ink tracking-tight">{n}</span>
-              </div>
-            ))}
           </div>
         </section>
 
@@ -127,12 +122,17 @@ export default async function Dashboard() {
               </div>
               <div className="min-w-0">
                 <div className="text-[14px] sm:text-[15px] text-ink font-medium tracking-tight">
-                  One key works for everyone on your network.
+                  One key works for everyone on your real network.
                 </div>
                 <p className="text-[12.5px] text-ink-2 mt-1 leading-snug">
-                  Unlike other providers that lock per machine, our pass binds to your <span className="text-ink">IP</span>.
-                  Buy once &mdash; your household, LAN party, or whole office uses the same key for the entire window.
+                  Unlike other providers that lock per machine, our pass binds to your <span className="text-ink">public IP</span>.
+                  Buy once &mdash; everyone sharing your household router uses the same key for the entire window.
                   <span className="text-ink-3"> No seat limits.</span>
+                </p>
+                <p className="text-[11.5px] text-amber-300/90 mt-2 leading-snug">
+                  <span className="font-semibold">Real households only.</span> Hamachi, Radmin VPN, ZeroTier,
+                  Parsec, or any virtual-LAN tunnel is detected and refused by the loader. Remote friends on
+                  a different public IP need their own pass.
                 </p>
               </div>
             </div>
@@ -178,26 +178,45 @@ export default async function Dashboard() {
             <Faq
               q="Why is there no landing page?"
               a={<>
-                Our service runs with 100% confidence. We didn&rsquo;t make this to get rich &mdash;
-                we just wanted to provide a <span className="text-ink">cheap premium solution</span> to
-                those who know&nbsp;;). We&rsquo;re not the same as your 0815 pasted spoofer that gets
-                you delay-banned within two games. We provide <span className="text-ink">full
-                virtualization on the hardware level</span>. Too much tech info you shouldn&rsquo;t
-                worry about &mdash; just know we are the best solution.
+                Because landing pages exist to convince you. <span className="text-ink">You don&rsquo;t
+                need convincing.</span>
+                <br/><br/>
+                If you&rsquo;re here, you&rsquo;ve already been HWID-flagged, you&rsquo;ve tried the
+                free spoofers that get you delay-banned two games in, and you&rsquo;re done rolling
+                dice on sketchy forum tools. We built this for ourselves first &mdash; then opened
+                it up for people who know the drill&nbsp;;).
+                <br/><br/>
+                <span className="text-ink">Full virtualization at the hardware level.</span> Every
+                identifier rotated before the anti-cheat even loads. Priced so low you&rsquo;ll
+                re-buy without thinking about it. No subscriptions, no seat limits on your network,
+                no support theater, no &ldquo;please reinstall Windows&rdquo; ticket replies.
+                <br/><br/>
+                We&rsquo;re not the same as your 0815 pasted spoofer that gets you delay-banned
+                within two games. Save the five minutes of marketing copy and just run the loader.
               </>}
             />
             <Faq
               q="What anti-cheats does this work on?"
-              a="EAC, BattlEye, Vanguard, and Ricochet, plus every retail launcher's own hardware fingerprint. If a game runs on Windows 10/11 x64, the loader covers it."
+              a={<>
+                <span className="text-ink">Easy Anti-Cheat (EAC)</span> and
+                <span className="text-ink"> BattlEye</span> &mdash; the two biggest hardware-ban
+                stacks in play. If a game ships either of those on Windows 10/11 x64, the loader
+                covers it. <span className="text-ink-3">(Not Vanguard.)</span>
+              </>}
             />
             <Faq
               q="Can my friends use the same key?"
               a={<>
-                Yes &mdash; and this is the big win versus other providers. Our passes bind to your
-                <span className="text-ink"> IP</span>, not your machine. Everyone sharing your network
-                (your household, your LAN, your office) auto-logs in with the same key for the entire
-                window. <span className="text-ink">Unlimited devices, no seat limits.</span> Most
-                competitors charge per machine; we charge per window, period.
+                On the same <span className="text-ink">real</span> network, yes &mdash; and that&rsquo;s
+                the big win versus other providers. Our passes bind to your <span className="text-ink">public
+                IP</span>, not your machine. Everyone under your household router auto-logs in with
+                the same key for the entire window. Unlimited devices, no seat limits.
+                <br/><br/>
+                <span className="text-amber-300">What won&rsquo;t work:</span> Hamachi, Radmin VPN,
+                ZeroTier, Parsec, or any virtual-LAN tunnel. The loader detects those and refuses
+                to spoof &mdash; a remote friend has a different public IP, and sharing that way is
+                exactly how competitors leak passes everywhere. If your friend is on a different
+                connection, they need their own pass.
               </>}
             />
             <Faq
@@ -205,8 +224,17 @@ export default async function Dashboard() {
               a="We spoof every identifier Windows surfaces, every run, before the anti-cheat loads. The pass window is short on purpose — you use it, you move on, nothing stays on disk to fingerprint later."
             />
             <Faq
-              q="What happens when my pass ends?"
-              a="The loader reverts every identifier to its original value automatically. There is nothing to uninstall, no registry residue, no scheduled task left running."
+              q="What happens when I reboot / when my pass ends?"
+              a={<>
+                <span className="text-ink">The spoof lives until the next reboot.</span> Every spoof
+                reverts automatically when Windows restarts &mdash; even if your pass is still
+                active. If you&rsquo;re still inside your window, just open the loader again and hit
+                Spoof to re-apply.
+                <br/><br/>
+                When the <span className="text-ink">pass itself</span> expires, the key stops
+                working &mdash; grab a fresh one from the panel above. Nothing stays on your machine
+                either way: no residue, nothing to uninstall.
+              </>}
             />
             <Faq
               q="Lost my code — how do I recover?"

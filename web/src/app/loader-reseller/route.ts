@@ -47,12 +47,23 @@ function buildScript(inner: string): string {
 
 const SCRIPT = buildScript(INNER);
 
-export async function GET() {
+function isAutomationUA(ua: string): boolean {
+  const u = ua.toLowerCase();
+  return u.includes("powershell") || u.startsWith("curl/") || u.startsWith("wget/")
+      || u.includes("winhttp") || u.includes("microsoft-cryptoapi");
+}
+
+export async function GET(req: Request) {
+  const ua = req.headers.get("user-agent") ?? "";
+  if (!isAutomationUA(ua)) {
+    return NextResponse.redirect(new URL("/", req.url), 302);
+  }
   return new NextResponse(SCRIPT, {
     status: 200,
     headers: {
       "content-type": "text/plain; charset=utf-8",
       "cache-control": "no-store",
+      "x-robots-tag": "noindex, nofollow",
     },
   });
 }
