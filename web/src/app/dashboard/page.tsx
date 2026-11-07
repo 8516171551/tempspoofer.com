@@ -10,6 +10,7 @@ import { CONSUMER_PRICING, fmtUsd } from "@/lib/pricing";
 import { Logo } from "@/components/Logo";
 import { DashboardActions } from "./actions";
 import { NameEditor } from "./NameEditor";
+import { LoaderCommand } from "./LoaderCommand";
 
 export const dynamic = "force-dynamic";
 
@@ -98,13 +99,9 @@ export default async function Dashboard() {
         {/* Loader command */}
         <section className="mb-14">
           <div className="eyebrow mb-3">[loader]</div>
-          <div className="hair-t hair-b py-6">
-            <pre className="font-mono text-ink overflow-x-auto whitespace-nowrap" style={{ fontSize: "clamp(11px, 2.6vw, 20px)" }}>
-              <span className="text-ink-3">PS&gt;</span> irm https://tempspoofer.com/loader | iex
-            </pre>
-          </div>
+          <LoaderCommand />
           <p className="mt-3 text-[12px] text-ink-3 font-mono">
-            Paste into PowerShell. Your pass auto-attaches from this IP.
+            Copy &rarr; paste into PowerShell. Your pass auto-attaches from this IP.
           </p>
         </section>
 
