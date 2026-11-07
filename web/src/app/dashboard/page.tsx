@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { currentAccountId, accountByIp, getAccount, activeLicenseForAccount } from "@/lib/account";
+import { currentAccountId, accountByIp, getAccount, activeLicenseForAccount, setAccountCookie } from "@/lib/account";
 import { clientIp } from "@/lib/ip";
 import { CONSUMER_PRICING, fmtUsd } from "@/lib/pricing";
 import { Logo } from "@/components/Logo";
@@ -19,8 +19,14 @@ const ORDER: Array<keyof typeof CONSUMER_PRICING> = ["day", "week", "month"];
 export default async function Dashboard() {
   const ip = await clientIp();
   let aid = await currentAccountId();
+  const hadCookie = !!aid;
   if (!aid && ip) aid = (await accountByIp(ip))?.id ?? null;
   if (!aid) redirect("/");
+  // If we authed via IP binding alone, (re-)establish the cookie so client-
+  // side calls (rename, logout, future) see an authenticated session.
+  if (!hadCookie) {
+    try { await setAccountCookie(aid); } catch { /* server-component cookie set may fail on reads; swallow */ }
+  }
 
   const acc = await getAccount(aid);
   if (!acc) redirect("/");

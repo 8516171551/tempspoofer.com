@@ -5,10 +5,16 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
-import { currentAccountId } from "@/lib/account";
+import { currentAccountId, accountByIp, setAccountCookie } from "@/lib/account";
+import { clientIpFromRequest } from "@/lib/ip";
 
 export async function POST(req: Request) {
-  const aid = await currentAccountId();
+  let aid = await currentAccountId();
+  if (!aid) {
+    const ip = clientIpFromRequest(req);
+    if (ip) aid = (await accountByIp(ip))?.id ?? null;
+    if (aid) await setAccountCookie(aid); // cookie was missing; re-establish
+  }
   if (!aid) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
 
   const body = (await req.json().catch(() => null)) as { name?: string } | null;
