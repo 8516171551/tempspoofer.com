@@ -110,8 +110,12 @@ const DDL: string[] = [
 
 export async function POST(req: Request) {
   const auth = req.headers.get("authorization");
-  const expect = `Bearer ${process.env.AUTH_SECRET ?? ""}`;
-  if (!auth || auth !== expect) {
+  const admin = process.env.ADMIN_SECRET;
+  const authSec = process.env.AUTH_SECRET;
+  const ok =
+    (admin   && auth === `Bearer ${admin}`) ||
+    (authSec && auth === `Bearer ${authSec}`);
+  if (!ok) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
