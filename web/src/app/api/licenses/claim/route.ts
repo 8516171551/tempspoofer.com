@@ -10,12 +10,25 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { CONSUMER_PRICING, type ConsumerTier } from "@/lib/pricing";
 import { clientIpFromRequest } from "@/lib/ip";
+import { verifySignedRequest, enforceRateLimit, SignedRequestError } from "@/lib/signed";
 
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => null) as { key?: string } | null;
-  const key = body?.key?.trim().toUpperCase();
+  const raw = await req.text();
   const ip = clientIpFromRequest(req);
   if (!ip) return NextResponse.json({ error: "Could not detect IP" }, { status: 400 });
+
+  try {
+    await enforceRateLimit("claim:ip", ip, 10, 60);
+    const v = await verifySignedRequest(req, raw);
+    await enforceRateLimit("claim:install", v.installId, 5, 60);
+  } catch (e) {
+    if (e instanceof SignedRequestError) return NextResponse.json({ error: e.message }, { status: e.status });
+    throw e;
+  }
+
+  let body: { key?: string } | null = null;
+  try { body = raw ? JSON.parse(raw) as { key?: string } : null; } catch { /* malformed */ }
+  const key = body?.key?.trim().toUpperCase();
 
   let lic = key
     ? (await db.select().from(schema.licenses).where(eq(schema.licenses.licenseKey, key)).limit(1))[0]

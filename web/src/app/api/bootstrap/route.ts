@@ -76,6 +76,36 @@ const DDL: string[] = [
     created_at    TIMESTAMP NOT NULL DEFAULT NOW()
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS ts_setup_tokens_token_unique ON ts_setup_tokens (token)`,
+
+  `CREATE TABLE IF NOT EXISTS ts_installs (
+    id            SERIAL PRIMARY KEY,
+    install_id    TEXT NOT NULL,
+    secret_hash   TEXT NOT NULL,
+    first_ip      TEXT,
+    last_ip       TEXT,
+    last_seen_at  TIMESTAMP,
+    revoked_at    TIMESTAMP,
+    created_at    TIMESTAMP NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS ts_installs_id_unique ON ts_installs (install_id)`,
+
+  `CREATE TABLE IF NOT EXISTS ts_request_nonces (
+    id          SERIAL PRIMARY KEY,
+    install_id  TEXT NOT NULL,
+    nonce       TEXT NOT NULL,
+    seen_at     TIMESTAMP NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS ts_nonces_unique ON ts_request_nonces (install_id, nonce)`,
+  `CREATE INDEX IF NOT EXISTS ts_nonces_age_idx ON ts_request_nonces (seen_at)`,
+
+  `CREATE TABLE IF NOT EXISTS ts_rate_limits (
+    id          SERIAL PRIMARY KEY,
+    bucket      TEXT NOT NULL,
+    subject     TEXT NOT NULL,
+    window_end  TIMESTAMP NOT NULL,
+    count       INTEGER NOT NULL DEFAULT 0
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS ts_rate_limits_unique ON ts_rate_limits (bucket, subject)`,
 ];
 
 export async function POST(req: Request) {

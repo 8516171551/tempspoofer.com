@@ -19,22 +19,49 @@ public sealed class ApiClient
         // Force TLS 1.2/1.3 — net48 defaults to older protocols that tempspoofer.com refuses.
         try { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; } catch { }
         try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)12288; /* Tls13 */ } catch { }
+        SignedHttp.InstallCertPin();
 
-        var handler = new HttpClientHandler
-        {
-            UseCookies = false,
-            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
-        };
-        _http = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
+        _http = new HttpClient(SignedHttp.NewHandler()) { BaseAddress = new Uri(BaseUrl) };
         _http.DefaultRequestHeaders.UserAgent.ParseAdd("TemporarySpooferLoader/2.0");
         _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    }
+
+    // Must succeed before any signed call. Reads cached (installId, secret)
+    // from DPAPI storage; if missing, mints a fresh pair via POST /api/install/register.
+    public async Task<bool> EnsureRegisteredAsync()
+    {
+        if (InstallIdentity.TryLoad()) return true;
+        try
+        {
+            using var content = new StringContent("{}", Encoding.UTF8, "application/json");
+            var res = await _http.PostAsync("/api/install/register", content).ConfigureAwait(false);
+            var text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (!res.IsSuccessStatusCode) return false;
+            var id  = Json.Field(text, "installId");
+            var sec = Json.Field(text, "installSecret");
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(sec)) return false;
+            InstallIdentity.Save(id!, sec!);
+            return true;
+        }
+        catch { return false; }
+    }
+
+    private async Task<HttpResponseMessage> SendSignedAsync(HttpMethod method, string path, string body)
+    {
+        var req = new HttpRequestMessage(method, path);
+        if (body.Length > 0)
+            req.Content = new StringContent(body, Encoding.UTF8, "application/json");
+        SignedHttp.Sign(req, path, body);
+        return await _http.SendAsync(req).ConfigureAwait(false);
     }
 
     public async Task<AuthResult> AuthByIpAsync()
     {
         try
         {
-            var res = await _http.GetAsync("/api/auth/ip").ConfigureAwait(false);
+            if (!await EnsureRegisteredAsync().ConfigureAwait(false))
+                return new AuthResult(false, "Install registration failed", null, null, null, null, null);
+            var res = await SendSignedAsync(HttpMethod.Get, "/api/auth/ip", "").ConfigureAwait(false);
             var text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (!res.IsSuccessStatusCode)
                 return new AuthResult(false, Json.Field(text, "error") ?? $"HTTP {(int)res.StatusCode}", null, null, null, null, null);
@@ -52,9 +79,10 @@ public sealed class ApiClient
     {
         try
         {
+            if (!await EnsureRegisteredAsync().ConfigureAwait(false))
+                return new AuthResult(false, "Install registration failed", null, null, null, null, null);
             var payload = "{\"key\":\"" + Json.Escape(key) + "\"}";
-            using var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            var res = await _http.PostAsync("/api/licenses/validate", content).ConfigureAwait(false);
+            var res = await SendSignedAsync(HttpMethod.Post, "/api/licenses/validate", payload).ConfigureAwait(false);
             var text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (!res.IsSuccessStatusCode)
                 return new AuthResult(false, Json.Field(text, "error") ?? $"HTTP {(int)res.StatusCode}", null, null, null, null, null);
@@ -72,9 +100,10 @@ public sealed class ApiClient
     {
         try
         {
+            if (!await EnsureRegisteredAsync().ConfigureAwait(false))
+                return new ClaimResult(false, "Install registration failed", null, null);
             var payload = key == null ? "{}" : "{\"key\":\"" + Json.Escape(key) + "\"}";
-            using var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            var res = await _http.PostAsync("/api/licenses/claim", content).ConfigureAwait(false);
+            var res = await SendSignedAsync(HttpMethod.Post, "/api/licenses/claim", payload).ConfigureAwait(false);
             var text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (!res.IsSuccessStatusCode)
                 return new ClaimResult(false, Json.Field(text, "error") ?? $"HTTP {(int)res.StatusCode}", null, null);

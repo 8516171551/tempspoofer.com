@@ -17,11 +17,16 @@
     <DebugType>embedded</DebugType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- Debug builds skip the anti-debug / anti-tamper fence so we can
+         actually attach a debugger. Release builds enforce it. -->
+    <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);TS_DEV</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Net.Http" />
+    <!-- DPAPI for per-user InstallIdentity encryption. -->
+    <Reference Include="System.Security" />
   </ItemGroup>
 
   <ItemGroup>

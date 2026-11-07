@@ -1,4 +1,5 @@
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -44,7 +45,29 @@ public sealed class UserSettings
         try
         {
             if (!File.Exists(FilePath)) return new UserSettings();
-            var text = File.ReadAllText(FilePath, Encoding.UTF8);
+            var raw = File.ReadAllText(FilePath, Encoding.UTF8);
+            // Split off the trailing sig line: last newline-separated chunk
+            // starting with "sig:" is the HMAC of everything above it.
+            var sigAt = raw.LastIndexOf("\nsig:", StringComparison.Ordinal);
+            string text; string? presentedSig = null;
+            if (sigAt >= 0)
+            {
+                text = raw.Substring(0, sigAt);
+                presentedSig = raw.Substring(sigAt + "\nsig:".Length).Trim();
+            }
+            else
+            {
+                text = raw; // legacy / unsigned — accept but rewrite with sig on save
+            }
+            // Verify signature if the install identity is known. A mismatch
+            // means someone (or something) edited the file by hand: reset to
+            // defaults rather than trusting foreign state.
+            if (presentedSig != null && !string.IsNullOrEmpty(InstallIdentity.InstallSecret))
+            {
+                var expect = SignString(text);
+                if (!FixedTimeEquals(expect, presentedSig))
+                    return new UserSettings();
+            }
             var s = new UserSettings
             {
                 SpoofNetwork     = Bool(text, "spoofNetwork",     true),
@@ -84,7 +107,9 @@ public sealed class UserSettings
             Append(sb, "pinnedVersion",    PinnedVersion);
             if (sb[sb.Length - 1] == ',') sb.Length--;
             sb.Append('}');
-            File.WriteAllText(FilePath, sb.ToString(), Encoding.UTF8);
+            var payload = sb.ToString();
+            var toWrite = payload + "\nsig:" + SignString(payload);
+            File.WriteAllText(FilePath, toWrite, Encoding.UTF8);
         }
         catch { /* best-effort; a corrupt file simply resets to defaults next launch */ }
     }
@@ -115,5 +140,23 @@ public sealed class UserSettings
     {
         if (v is null) { sb.Append('"').Append(key).Append("\":null,"); return; }
         sb.Append('"').Append(key).Append("\":\"").Append(Json.Escape(v)).Append("\",");
+    }
+
+    private static string SignString(string s)
+    {
+        var key = InstallIdentity.DeriveKey("settings.v1");
+        using var h = new HMACSHA256(key);
+        var sig = h.ComputeHash(Encoding.UTF8.GetBytes(s));
+        var hex = new StringBuilder(sig.Length * 2);
+        for (int i = 0; i < sig.Length; i++) hex.Append(sig[i].ToString("x2"));
+        return hex.ToString();
+    }
+
+    private static bool FixedTimeEquals(string a, string b)
+    {
+        if (a is null || b is null || a.Length != b.Length) return false;
+        int diff = 0;
+        for (int i = 0; i < a.Length; i++) diff |= a[i] ^ b[i];
+        return diff == 0;
     }
 }

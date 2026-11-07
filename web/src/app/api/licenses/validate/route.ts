@@ -5,9 +5,25 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { RESELLER_PRICING } from "@/lib/pricing";
+import { verifySignedRequest, enforceRateLimit, SignedRequestError } from "@/lib/signed";
+import { clientIpFromRequest } from "@/lib/ip";
 
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => null) as { key?: string } | null;
+  const raw = await req.text();
+  let installId: string;
+  try {
+    const ip = clientIpFromRequest(req) ?? "unknown";
+    await enforceRateLimit("validate:ip", ip, 30, 60); // 30/min/IP
+    const v = await verifySignedRequest(req, raw);
+    installId = v.installId;
+    await enforceRateLimit("validate:install", installId, 20, 60);
+  } catch (e) {
+    if (e instanceof SignedRequestError) return NextResponse.json({ error: e.message }, { status: e.status });
+    throw e;
+  }
+
+  let body: { key?: string } | null = null;
+  try { body = raw ? JSON.parse(raw) as { key?: string } : null; } catch { /* malformed */ }
   if (!body?.key) {
     return NextResponse.json({ error: "key required" }, { status: 400 });
   }

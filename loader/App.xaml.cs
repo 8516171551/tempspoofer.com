@@ -24,6 +24,16 @@ public partial class App : Application
         {
             base.OnStartup(e);
 
+            // Refuse to run under common analysis tools / attached debuggers.
+            // No-op in TS_DEV builds. See AntiTamper.cs for the trigger list.
+            AntiTamper.EnforceOrDie();
+            AntiTamper.StartWatchdog();
+
+            // Load the per-install identity (or mint one on first run below
+            // when ApiClient.EnsureRegisteredAsync fires) BEFORE loading
+            // settings so the HMAC verification on settings.json works.
+            InstallIdentity.TryLoad();
+
             // Version pinning: if the user picked an older release under
             // Settings > Developer Options, download it and re-launch into
             // that binary before showing any UI. The pinned exe really IS

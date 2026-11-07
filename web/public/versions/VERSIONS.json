@@ -1,6 +1,7 @@
 {
-  "latest": "ONYX",
+  "latest": "VAULT",
   "versions": [
+    { "codename": "VAULT",     "releasedUtc": "2026-11-07", "blocked": false, "notes": "Security pass: signed requests, DPAPI install identity, cert pinning, anti-debug, rate limiting, HMAC settings, revocation." },
     { "codename": "ONYX",      "releasedUtc": "2026-11-07", "blocked": false, "notes": "Custom scrollbars, checkboxes, radios; redesigned Settings tab." },
     { "codename": "NIGHTFALL", "releasedUtc": "2026-11-07", "blocked": false, "notes": "Settings panel, developer options, version pinning." },
     { "codename": "ECLIPSE",   "releasedUtc": "2026-11-07", "blocked": false, "notes": "Reboot warning on success overlay." },

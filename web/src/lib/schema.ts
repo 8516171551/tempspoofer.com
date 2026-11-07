@@ -68,6 +68,50 @@ export const purchases = pgTable("ts_purchases", {
   sessionIdx: uniqueIndex("ts_purchases_session_unique").on(t.stripeSessionId),
 }));
 
+// Per-install identity. Issued on first contact by POST /api/install/register.
+// The secret is the HMAC key the loader uses to sign every subsequent request;
+// we only store its SHA-256 hash so a DB leak doesn't expose signing keys.
+// Revoke by setting revokedAt — any signed request from this install starts
+// returning 403 immediately on the next call.
+export const installs = pgTable("ts_installs", {
+  id:           serial("id").primaryKey(),
+  installId:    text("install_id").notNull(),
+  secretHash:   text("secret_hash").notNull(),
+  firstIp:      text("first_ip"),
+  lastIp:       text("last_ip"),
+  lastSeenAt:   timestamp("last_seen_at"),
+  revokedAt:    timestamp("revoked_at"),
+  createdAt:    timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  installIdx: uniqueIndex("ts_installs_id_unique").on(t.installId),
+}));
+
+// Nonce replay cache — every signed request carries a client nonce + unix ts.
+// We insert on verify; a duplicate violates the unique index and the request
+// is refused. Rows self-expire via an occasional cleanup (anything older than
+// ~10 minutes is pruned by a probabilistic sweep inside verifySignedRequest).
+export const requestNonces = pgTable("ts_request_nonces", {
+  id:        serial("id").primaryKey(),
+  installId: text("install_id").notNull(),
+  nonce:     text("nonce").notNull(),
+  seenAt:    timestamp("seen_at").notNull().defaultNow(),
+}, (t) => ({
+  nonceIdx: uniqueIndex("ts_nonces_unique").on(t.installId, t.nonce),
+  ageIdx:   index("ts_nonces_age_idx").on(t.seenAt),
+}));
+
+// Rolling window rate-limit counters keyed by (bucket, ip|install). Survives
+// Vercel serverless cold starts unlike in-memory counters.
+export const rateLimits = pgTable("ts_rate_limits", {
+  id:        serial("id").primaryKey(),
+  bucket:    text("bucket").notNull(),    // e.g. "auth:ip", "claim:install"
+  subject:   text("subject").notNull(),   // ip or installId
+  windowEnd: timestamp("window_end").notNull(),
+  count:     integer("count").notNull().default(0),
+}, (t) => ({
+  bucketSubjectIdx: uniqueIndex("ts_rate_limits_unique").on(t.bucket, t.subject),
+}));
+
 // One-shot setup tokens for first-time reseller password creation.
 // Issued by the Stripe webhook, consumed by POST /api/auth/setup.
 export const setupTokens = pgTable("ts_setup_tokens", {
