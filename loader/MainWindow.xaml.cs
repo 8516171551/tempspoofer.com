@@ -23,6 +23,13 @@ public partial class MainWindow : Window
         StepList.ItemsSource = _steps;
         StepList.ItemTemplate = (DataTemplate)FindResource("StepTemplate");
 
+        if (!string.IsNullOrEmpty(_settings.PinnedVersion) &&
+            !string.Equals(_settings.PinnedVersion, Build.Codename, StringComparison.OrdinalIgnoreCase))
+        {
+            PinnedBannerVersion.Text = " " + _settings.PinnedVersion + " ";
+            PinnedBanner.Visibility  = Visibility.Visible;
+        }
+
         Loaded += async (_, _) =>
         {
             if (Session.LicenseKey is null)
@@ -36,6 +43,26 @@ public partial class MainWindow : Window
                 FinishAuth();
             }
         };
+    }
+
+    private void UnpinBanner_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.PinnedVersion = null;
+        _settings.Save();
+        // Restart into the latest binary. The PS bootstrap isn't involved —
+        // tempspoofer.com/loader.exe is always latest, so just re-run it.
+        try
+        {
+            var tmp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ts_latest.exe");
+            using (var http = new System.Net.Http.HttpClient())
+            {
+                var bytes = http.GetByteArrayAsync($"{ApiClient.BaseUrl}/loader.exe").GetAwaiter().GetResult();
+                System.IO.File.WriteAllBytes(tmp, bytes);
+            }
+            Process.Start(new ProcessStartInfo { FileName = tmp, UseShellExecute = false });
+        }
+        catch { /* best-effort; user can rerun the one-liner */ }
+        Application.Current.Shutdown();
     }
 
     // ---------------- Settings overlay ----------------
