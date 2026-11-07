@@ -5,6 +5,7 @@ import { db, schema } from "@/lib/db";
 import { currentSession } from "@/lib/session";
 import { RESELLER_PRICING, CONSUMER_PRICING, fmtUsd } from "@/lib/pricing";
 import { GenerateKeysForm, BrandNameForm } from "./form";
+import { Logo } from "@/components/Logo";
 
 
 export default async function ResellerPage() {
@@ -153,8 +154,8 @@ function TopBar({ email }: { email: string }) {
   return (
     <header className="border-b border-[#1e1e23] bg-[#0a0a0a]/80 backdrop-blur sticky top-0 z-30">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-bold">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300"></span>
+        <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight">
+          <Logo size={26} />
           Temporary Spoofer
         </Link>
         <nav className="flex items-center gap-4 sm:gap-5 text-sm">

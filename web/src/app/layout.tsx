@@ -5,12 +5,18 @@ export const metadata: Metadata = {
   title: "Temporary Spoofer — HWID spoofer for Windows",
   description:
     "Temporary Spoofer. Short-term HWID spoofer with per-session passes. Reseller program available.",
+  themeColor: "#0A0A0E",
   openGraph: {
     title: "Temporary Spoofer",
     description: "Short-term HWID spoofer with per-session passes.",
     url: "https://tempspoofer.com",
     siteName: "Temporary Spoofer",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Temporary Spoofer",
+    description: "Short-term HWID spoofer with per-session passes.",
   },
 };
 

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="tsBrand2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E4F0FD"/>
+      <stop offset="55%" stop-color="#B2D6F8"/>
+      <stop offset="100%" stop-color="#6BAAEB"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#tsBrand2)"/>
+  <path d="M18 22 H46" stroke="#0A0A0E" stroke-width="7" stroke-linecap="round"/>
+  <path d="M32 22 V46" stroke="#0A0A0E" stroke-width="7" stroke-linecap="round"/>
+  <path d="M 52 32 A 20 20 0 1 0 32 12" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+  <circle cx="32" cy="12" r="2.8" fill="#0A0A0E"/>
+</svg>

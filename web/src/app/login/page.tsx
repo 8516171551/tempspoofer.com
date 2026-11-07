@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,8 +37,8 @@ export default function LoginPage() {
   return (
     <div className="grid-pattern min-h-screen flex items-center justify-center px-5 sm:px-6">
       <div className="card lift p-7 sm:p-8 w-full max-w-md reveal">
-        <Link href="/" className="flex items-center gap-2 font-bold mb-8">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300"></span>
+        <Link href="/" className="flex items-center gap-2.5 font-bold mb-8 tracking-tight">
+          <Logo size={28} />
           Temporary Spoofer
         </Link>
         <div className="text-xs text-brand-300 font-semibold uppercase mb-2">Reseller login</div>

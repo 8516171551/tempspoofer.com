@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CONSUMER_PRICING, RESELLER_PRICING, fmtUsd } from "@/lib/pricing";
+import { Logo } from "@/components/Logo";
 
 const CONSUMER_ORDER: Array<keyof typeof CONSUMER_PRICING> = ["day", "week", "month"];
 const RESELLER_ORDER: Array<keyof typeof RESELLER_PRICING> = ["starter", "pro", "enterprise"];
@@ -21,8 +22,8 @@ function Nav() {
   return (
     <header className="border-b border-[#1e1e23] backdrop-blur sticky top-0 z-30 bg-[#0a0a0a]/80">
       <div className="max-w-6xl mx-auto px-5 sm:px-6 py-4 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-[15px] sm:text-[16px] reveal-fast">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-300 shadow-[0_0_14px_rgba(178,214,248,.75)]"></span>
+        <Link href="/" className="flex items-center gap-2.5 font-bold text-[15px] sm:text-[16px] reveal-fast tracking-tight">
+          <Logo size={28} />
           Temporary Spoofer
         </Link>
         <nav className="hidden md:flex items-center gap-7 text-sm text-zinc-400">
