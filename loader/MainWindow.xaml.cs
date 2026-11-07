@@ -49,20 +49,46 @@ public partial class MainWindow : Window
     {
         _settings.PinnedVersion = null;
         _settings.Save();
-        // Restart into the latest binary. The PS bootstrap isn't involved —
-        // tempspoofer.com/loader.exe is always latest, so just re-run it.
-        try
+        RestartSub.Text = "Returning to latest";
+        StartRestartCountdownLatest();
+    }
+
+    private void StartRestartCountdownLatest()
+    {
+        var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220))
+        { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+        RestartOverlay.IsHitTestVisible = true;
+        RestartOverlay.BeginAnimation(OpacityProperty, fadeIn);
+
+        var ringAnim = new DoubleAnimation(0, 439.82, TimeSpan.FromSeconds(3));
+        RestartRing.BeginAnimation(System.Windows.Shapes.Shape.StrokeDashOffsetProperty, ringAnim);
+
+        RestartCount.Text = "3";
+        int left = 3;
+        var tick = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        tick.Tick += (_, _) =>
         {
-            var tmp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ts_latest.exe");
-            using (var http = new System.Net.Http.HttpClient())
+            left--;
+            if (left > 0) RestartCount.Text = left.ToString();
+            else
             {
-                var bytes = http.GetByteArrayAsync($"{ApiClient.BaseUrl}/loader.exe").GetAwaiter().GetResult();
-                System.IO.File.WriteAllBytes(tmp, bytes);
+                tick.Stop();
+                RestartCount.Text = "0";
+                try
+                {
+                    var tmp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ts_latest.exe");
+                    using (var http = new System.Net.Http.HttpClient())
+                    {
+                        var bytes = http.GetByteArrayAsync($"{ApiClient.BaseUrl}/loader.exe").GetAwaiter().GetResult();
+                        System.IO.File.WriteAllBytes(tmp, bytes);
+                    }
+                    Process.Start(new ProcessStartInfo { FileName = tmp, UseShellExecute = false });
+                }
+                catch { /* ignore */ }
+                Application.Current.Shutdown();
             }
-            Process.Start(new ProcessStartInfo { FileName = tmp, UseShellExecute = false });
-        }
-        catch { /* best-effort; user can rerun the one-liner */ }
-        Application.Current.Shutdown();
+        };
+        tick.Start();
     }
 
     // ---------------- Settings overlay ----------------
@@ -186,9 +212,9 @@ public partial class MainWindow : Window
             FontSize = 13, FontWeight = FontWeights.SemiBold,
             Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xE0, 0xE0, 0xE4)),
         });
-        if (v.IsLatest || isCurrent) header.Children.Add(BuildBadge(isCurrent ? "RUNNING" : "LATEST", 0x16, 0xA3, 0x4A));
-        if (isPinned && !isCurrent)  header.Children.Add(BuildBadge("PINNED",  0xB2, 0xD6, 0xF8));
-        if (v.Blocked)               header.Children.Add(BuildBadge("BLOCKED", 0xDC, 0x26, 0x26));
+        if (isCurrent)              header.Children.Add(BuildBadge("RUNNING", 0x16, 0xA3, 0x4A));
+        else if (v.IsLatest)        header.Children.Add(BuildBadge("LATEST",  0xB2, 0xD6, 0xF8));
+        if (v.Blocked)              header.Children.Add(BuildBadge("BLOCKED", 0xDC, 0x26, 0x26));
         sp.Children.Add(header);
         sp.Children.Add(new System.Windows.Controls.TextBlock
         {
@@ -199,26 +225,26 @@ public partial class MainWindow : Window
         System.Windows.Controls.Grid.SetColumn(sp, 0);
         grid.Children.Add(sp);
 
+        string label; Style style; bool enabled; System.Windows.Media.Color fg;
+        if (isCurrent)      { label = "Current";  style = (Style)FindResource("GhostBtn"); enabled = false; fg = System.Windows.Media.Color.FromRgb(0x8A, 0x8A, 0x95); }
+        else if (v.Blocked) { label = "Blocked";  style = (Style)FindResource("GhostBtn"); enabled = false; fg = System.Windows.Media.Color.FromRgb(0x8A, 0x8A, 0x95); }
+        else                { label = "Roll back"; style = (Style)FindResource("FlatBtn");  enabled = true;  fg = System.Windows.Media.Color.FromRgb(0x0A, 0x0A, 0x0A); }
+
         var btn = new System.Windows.Controls.Button
         {
-            Style = isCurrent || isPinned ? (Style)FindResource("GhostBtn") : (Style)FindResource("FlatBtn"),
+            Style = style,
             Padding = new Thickness(14, 6, 14, 6),
             MinWidth = 110,
             VerticalAlignment = VerticalAlignment.Center,
-            IsEnabled = !v.Blocked && !isPinned,
+            IsEnabled = enabled,
             Content = new System.Windows.Controls.TextBlock
             {
-                Text = isCurrent ? "Unpin"
-                     : isPinned  ? "Pinned"
-                     : "Use this",
+                Text = label,
                 FontSize = 12, FontWeight = FontWeights.SemiBold,
-                Foreground = new System.Windows.Media.SolidColorBrush(
-                    (isCurrent || isPinned)
-                        ? System.Windows.Media.Color.FromRgb(0xE0, 0xE0, 0xE4)
-                        : System.Windows.Media.Color.FromRgb(0x0A, 0x0A, 0x0A)),
+                Foreground = new System.Windows.Media.SolidColorBrush(fg),
             },
         };
-        btn.Click += (_, _) => OnPickVersion(v, isCurrent);
+        if (enabled) btn.Click += (_, _) => BeginRollback(v);
         System.Windows.Controls.Grid.SetColumn(btn, 1);
         grid.Children.Add(btn);
         card.Child = grid;
@@ -244,24 +270,70 @@ public partial class MainWindow : Window
         };
     }
 
-    private void OnPickVersion(VersionManager.Entry v, bool isCurrent)
+    private void BeginRollback(VersionManager.Entry v)
     {
-        if (isCurrent)
-        {
-            // Clear pin — next launch stays on whatever the server marks latest.
-            _settings.PinnedVersion = null;
-        }
-        else
-        {
-            _settings.PinnedVersion = v.Codename;
-        }
+        // Persist the pin so the auto-launched child boots the archived build.
+        _settings.PinnedVersion = v.Codename;
         _settings.Save();
-        PinnedHint.Text = string.IsNullOrEmpty(_settings.PinnedVersion)
-            ? "Running latest."
-            : $"Pinned to {_settings.PinnedVersion} — restart loader to apply.";
-        // Rebuild rows so badges + button states update.
-        VersionList.Items.Clear();
-        foreach (var row in _versions) VersionList.Items.Add(BuildVersionRow(row));
+        RestartSub.Text = $"Rolling back to {v.Codename}";
+        StartRestartCountdown(v.Codename);
+    }
+
+    // 3-second countdown with a ring that drains from full → empty, then
+    // kicks off the download + launch + shutdown flow. Pure XAML animation
+    // for the ring; a DispatcherTimer updates the numeric label.
+    private void StartRestartCountdown(string targetCodename)
+    {
+        // Fade the overlay in and make it modal.
+        var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220))
+        { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+        RestartOverlay.IsHitTestVisible = true;
+        RestartOverlay.BeginAnimation(OpacityProperty, fadeIn);
+
+        // Ring: StrokeDashOffset 0 → 439.82 (full circumference) over 3s.
+        // No easing — linear drain reads as a clean countdown.
+        var ringAnim = new DoubleAnimation(0, 439.82, TimeSpan.FromSeconds(3));
+        RestartRing.BeginAnimation(System.Windows.Shapes.Shape.StrokeDashOffsetProperty, ringAnim);
+
+        // Count 3 → 2 → 1 in the center label.
+        RestartCount.Text = "3";
+        int left = 3;
+        var tick = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        tick.Tick += (_, _) =>
+        {
+            left--;
+            if (left > 0) RestartCount.Text = left.ToString();
+            else
+            {
+                tick.Stop();
+                RestartCount.Text = "0";
+                LaunchPinnedAndQuit(targetCodename);
+            }
+        };
+        tick.Start();
+    }
+
+    private void LaunchPinnedAndQuit(string codename)
+    {
+#if RESELLER
+        var remote = $"{ApiClient.BaseUrl}/loader/v/{Uri.EscapeDataString(codename)}-reseller";
+#else
+        var remote = $"{ApiClient.BaseUrl}/loader/v/{Uri.EscapeDataString(codename)}";
+#endif
+        try
+        {
+            var dir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ts_" + Guid.NewGuid().ToString("N").Substring(0, 8));
+            System.IO.Directory.CreateDirectory(dir);
+            var exe = System.IO.Path.Combine(dir, "loader.exe");
+            using (var http = new System.Net.Http.HttpClient())
+            {
+                var bytes = http.GetByteArrayAsync(remote).GetAwaiter().GetResult();
+                System.IO.File.WriteAllBytes(exe, bytes);
+            }
+            Process.Start(new ProcessStartInfo { FileName = exe, WorkingDirectory = dir, UseShellExecute = false });
+        }
+        catch { /* best effort — the pinned-version startup check in App.xaml.cs catches us next launch too */ }
+        Application.Current.Shutdown();
     }
 
     private async Task AuthByIpAsync()

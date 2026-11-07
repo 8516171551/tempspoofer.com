@@ -216,7 +216,7 @@
                     <Border Grid.Column="2" Background="{StaticResource Panel}" CornerRadius="8" Padding="14,11" Margin="4,0,4,0" x:Name="m3">
                         <StackPanel>
                             <TextBlock Text="VERSION" FontSize="10" Foreground="#666" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                            <TextBlock Text="CIPHER" FontSize="14" Foreground="{StaticResource Accent}" FontWeight="SemiBold"/>
+                            <TextBlock Text="GENESIS" FontSize="14" Foreground="{StaticResource Accent}" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="3" Background="{StaticResource Panel}" CornerRadius="8" Padding="14,11" Margin="4,0,0,0" x:Name="m4">
@@ -416,6 +416,32 @@
                         </Grid>
                     </Border>
                 </Grid>
+            </Border>
+
+            <!-- Restart countdown overlay (3-sec ring drain + text) -->
+            <Border x:Name="RestartOverlay" Background="#F20A0A0E" Opacity="0" IsHitTestVisible="False" CornerRadius="12">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Grid Width="140" Height="140" Margin="0,0,0,24">
+                        <!-- Track ring -->
+                        <Ellipse Width="140" Height="140" Stroke="#1E1E26" StrokeThickness="4"/>
+                        <!-- Draining ring: stroke + dash-offset animates from 0 to circumference (439.82) -->
+                        <Ellipse x:Name="RestartRing" Width="140" Height="140"
+                                 Stroke="{StaticResource Accent}" StrokeThickness="4"
+                                 StrokeDashArray="439.82,439.82" StrokeDashOffset="0"
+                                 RenderTransformOrigin="0.5,0.5">
+                            <Ellipse.RenderTransform>
+                                <RotateTransform Angle="-90"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                        <TextBlock x:Name="RestartCount" Text="3"
+                                   FontSize="48" FontWeight="Bold" Foreground="{StaticResource Text}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                    <TextBlock Text="Loader is restarting…" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource Text}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="RestartSub" Text="Rolling back to GENESIS" FontSize="12"
+                               Foreground="{StaticResource Muted}" HorizontalAlignment="Center"/>
+                </StackPanel>
             </Border>
 
             <!-- Success overlay -->

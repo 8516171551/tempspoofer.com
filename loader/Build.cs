@@ -5,6 +5,6 @@ namespace TemporarySpoofer;
 // the GitHub Action archives the resulting exe under this name.
 public static class Build
 {
-    public const string Codename    = "CIPHER";
+    public const string Codename    = "GENESIS";
     public const string ReleasedUtc = "2026-11-07";
 }
