@@ -1,62 +1,59 @@
 import { NextResponse } from "next/server";
 
-// Wrapped in `& { ... }` so iex is never asked to bind anything the script
-// internals return. The script body produces no pipeline output; the `& {}`
-// invocation swallows whatever would land on the pipeline.
-const SCRIPT = `& {
-$ErrorActionPreference = 'Stop'
-$ProgressPreference    = 'SilentlyContinue'
+// The actual Load + Invoke runs inside a fresh child powershell (-STA, -NoProfile)
+// so Application.ResourceAssembly is virgin on every launch. It would otherwise
+// throw "cannot be set more than once" after the user closes the window and
+// re-runs the one-liner in the same PS session. Base64 via -EncodedCommand so
+// we dodge every quote-escape headache.
+const INNER: string =
+  "$ErrorActionPreference='Stop'\n" +
+  "[Net.ServicePointManager]::SecurityProtocol=[Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12\n" +
+  "function Err($m){Add-Type -AssemblyName System.Windows.Forms|Out-Null;[System.Windows.Forms.MessageBox]::Show($m,'Temporary Spoofer')|Out-Null}\n" +
+  "try{$b=(New-Object Net.WebClient).DownloadData('https://tempspoofer.com/loader.exe')}catch{Err(\"Connection failed: $($_.Exception.Message)\");exit 1}\n" +
+  "if(-not $b -or $b.Length -lt 100000){Err('Invalid payload');exit 1}\n" +
+  "try{\n" +
+  "  Add-Type -AssemblyName PresentationFramework -ErrorAction Stop|Out-Null\n" +
+  "  $asm=[Reflection.Assembly]::Load($b)\n" +
+  "  if(-not [System.Windows.Application]::ResourceAssembly){[System.Windows.Application]::ResourceAssembly=$asm}\n" +
+  "  $e=$asm.EntryPoint\n" +
+  "  if($e.GetParameters().Length -eq 0){$e.Invoke($null,@())|Out-Null}else{$e.Invoke($null,(,[string[]]@()))|Out-Null}\n" +
+  "}catch{\n" +
+  "  $m=$_.Exception.Message\n" +
+  "  if($_.Exception.InnerException){$m=$m+[Environment]::NewLine+$_.Exception.InnerException.Message}\n" +
+  "  Err(\"Startup error: $m\")\n" +
+  "  exit 1\n" +
+  "}finally{$b=$null;[GC]::Collect()}";
 
-Write-Host ''
-Write-Host '  Temporary Spoofer' -ForegroundColor White
-Write-Host '  -----------------' -ForegroundColor DarkGray
-
-[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-
-# If the host isn't STA (WPF requirement), relaunch into a fresh STA shell
-# with the same one-liner. Interactive powershell.exe is STA by default; -File
-# / -Command sessions are MTA. Either works for the user.
-if ([Threading.Thread]::CurrentThread.GetApartmentState() -ne 'STA') {
-    Write-Host '  relaunching in STA host...' -ForegroundColor DarkGray
-    Start-Process -FilePath 'powershell.exe' -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-STA','-Command',"irm https://tempspoofer.com/loader | iex" -WindowStyle Hidden
-    return
+function buildScript(inner: string): string {
+  // -EncodedCommand expects UTF-16LE base64.
+  const utf16 = Buffer.from(inner, "utf16le").toString("base64");
+  // Outer script: just show a short status in the user's current session,
+  // then spawn the real work in a hidden child so the WPF AppDomain is clean.
+  return [
+    "& {",
+    "$ErrorActionPreference = 'Stop'",
+    "$ProgressPreference    = 'SilentlyContinue'",
+    "",
+    "Write-Host ''",
+    "Write-Host '  Temporary Spoofer' -ForegroundColor White",
+    "Write-Host '  -----------------' -ForegroundColor DarkGray",
+    "Write-Host '  preparing...' -ForegroundColor DarkGray",
+    "",
+    "try {",
+    "    Start-Process -FilePath 'powershell.exe' -ArgumentList @(",
+    "        '-NoProfile','-ExecutionPolicy','Bypass','-STA','-WindowStyle','Hidden',",
+    `        '-EncodedCommand','${utf16}'`,
+    "    ) | Out-Null",
+    "    Write-Host '  starting...' -ForegroundColor Green",
+    "} catch {",
+    `    Write-Host "  launch failed: $($_.Exception.Message)" -ForegroundColor Red`,
+    "}",
+    "}",
+    "",
+  ].join("\n");
 }
 
-Write-Host '  preparing...' -ForegroundColor DarkGray
-try {
-    $b = (New-Object Net.WebClient).DownloadData('https://tempspoofer.com/loader.exe')
-} catch {
-    Write-Host "  connection failed: $($_.Exception.Message)" -ForegroundColor Red
-    return
-}
-if (-not $b -or $b.Length -lt 100000) {
-    Write-Host '  rejected (bad size)' -ForegroundColor Red
-    return
-}
-
-Write-Host '  starting...' -ForegroundColor Green
-
-try {
-    Add-Type -AssemblyName PresentationFramework -ErrorAction Stop | Out-Null
-    $asm = [Reflection.Assembly]::Load($b)
-    [System.Windows.Application]::ResourceAssembly = $asm
-    $entry = $asm.EntryPoint
-    if ($entry.GetParameters().Length -eq 0) {
-        $entry.Invoke($null, @()) | Out-Null
-    } else {
-        $entry.Invoke($null, (,[string[]]@())) | Out-Null
-    }
-} catch {
-    Write-Host "  startup error: $($_.Exception.Message)" -ForegroundColor Red
-    if ($_.Exception.InnerException) {
-        Write-Host "  inner: $($_.Exception.InnerException.Message)" -ForegroundColor Red
-    }
-} finally {
-    $b = $null
-    [GC]::Collect()
-}
-}
-`;
+const SCRIPT = buildScript(INNER);
 
 export async function GET() {
   return new NextResponse(SCRIPT, {
