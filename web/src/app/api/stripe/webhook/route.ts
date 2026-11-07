@@ -57,6 +57,23 @@ export async function POST(req: Request) {
 
     if (kind === "consumer" && tier in CONSUMER_PRICING) {
       const licenseKey = newLicenseKey();
+      const accountId = (session.metadata?.accountId ?? "").trim() || null;
+
+      // Attach the Stripe email to the buyer's account as the recovery
+      // address. Only set it if the account doesn't already have one so
+      // we never clobber a deliberate user choice.
+      if (accountId) {
+        try {
+          const acc = (await db.select().from(schema.accounts).where(eq(schema.accounts.id, accountId)).limit(1))[0];
+          if (acc && !acc.recoveryEmail) {
+            await db.update(schema.accounts)
+              .set({ recoveryEmail: email })
+              .where(eq(schema.accounts.id, accountId));
+          }
+        } catch (e) {
+          console.error("[ts.webhook] recovery email attach failed", e);
+        }
+      }
 
       await db.insert(schema.licenses).values({
         licenseKey,
@@ -75,7 +92,7 @@ export async function POST(req: Request) {
       });
 
       await sendLicenseEmail(email, licenseKey, tierLabel(tier));
-      return NextResponse.json({ ok: true, delivered: "consumer" });
+      return NextResponse.json({ ok: true, delivered: "consumer", attachedToAccount: accountId });
     }
 
     if (kind === "reseller") {

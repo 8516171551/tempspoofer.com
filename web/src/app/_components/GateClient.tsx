@@ -47,7 +47,7 @@ function ConfirmCheck({ checked, onToggle, label }: {
   );
 }
 
-type Phase = "choose" | "login" | "saved";
+type Phase = "choose" | "login" | "recover" | "recover_sent" | "saved";
 
 export function GateClient() {
   const router = useRouter();
@@ -56,6 +56,7 @@ export function GateClient() {
   const [err, setErr]     = useState<string | null>(null);
   const [code, setCode]   = useState<string>("");          // what we just minted
   const [input, setInput] = useState<string>("");          // login field
+  const [email, setEmail] = useState<string>("");          // recovery email field
   const [checks, setChecks] = useState<[boolean, boolean, boolean]>([false, false, false]);
 
   async function createAccount() {
@@ -81,6 +82,20 @@ export function GateClient() {
       if (!r.ok) { setErr(j.error ?? "Invalid code"); return; }
       router.push("/dashboard");
       router.refresh();
+    } finally { setBusy(false); }
+  }
+
+  async function sendRecovery() {
+    setBusy(true); setErr(null);
+    try {
+      const r = await fetch("/api/accounts/recover/request", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const j = await r.json();
+      if (!r.ok) { setErr(j.error ?? "Could not send"); return; }
+      setPhase("recover_sent");
     } finally { setBusy(false); }
   }
 
@@ -159,11 +174,72 @@ export function GateClient() {
               {busy ? "Checking..." : "Open my dashboard →"}
             </button>
             <button
+              onClick={() => { setPhase("recover"); setErr(null); }}
+              disabled={busy}
+              className="btn btn-ghost w-full justify-center mb-3"
+            >
+              I lost my access code
+            </button>
+            <button
               onClick={() => { setPhase("choose"); setErr(null); }}
               disabled={busy}
               className="btn btn-ghost w-full justify-center"
             >
               Back
+            </button>
+          </section>
+        )}
+
+        {phase === "recover" && (
+          <section className="reveal">
+            <h1 className="display text-4xl sm:text-5xl tracking-tight text-center mb-3">
+              Recover your account.
+            </h1>
+            <p className="lead text-center mb-6">
+              Enter the email you used on Stripe (or the recovery email you set in your dashboard). We&rsquo;ll send a one-time link that resets your master code.
+            </p>
+            <input
+              className="input mb-3"
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoFocus
+            />
+            {err && <div className="text-sm text-red-400 mb-3 text-center">{err}</div>}
+            <button
+              onClick={sendRecovery}
+              disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())}
+              className="btn btn-brand w-full justify-center mb-3"
+            >
+              {busy ? "Sending..." : "Send recovery link →"}
+            </button>
+            <button
+              onClick={() => { setPhase("login"); setErr(null); }}
+              disabled={busy}
+              className="btn btn-ghost w-full justify-center"
+            >
+              Back
+            </button>
+          </section>
+        )}
+
+        {phase === "recover_sent" && (
+          <section className="reveal text-center">
+            <div className="eyebrow mb-3">[sent]</div>
+            <h1 className="display text-4xl sm:text-5xl tracking-tight mb-3">
+              Check your inbox.
+            </h1>
+            <p className="lead mb-8">
+              If <span className="text-ink mono">{email}</span> matches an account, a recovery link is
+              on its way. The link works once and expires in 30 minutes.
+            </p>
+            <button
+              onClick={() => { setPhase("choose"); setErr(null); setEmail(""); }}
+              className="btn btn-ghost w-full justify-center"
+            >
+              Done
             </button>
           </section>
         )}

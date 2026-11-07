@@ -126,6 +126,19 @@ const DDL: string[] = [
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
   )`,
   `CREATE INDEX IF NOT EXISTS ts_ip_bindings_account_idx ON ts_ip_bindings (account_id)`,
+  `ALTER TABLE ts_accounts ADD COLUMN IF NOT EXISTS recovery_email TEXT`,
+  `CREATE INDEX IF NOT EXISTS ts_accounts_recovery_email_idx ON ts_accounts (recovery_email)`,
+
+  `CREATE TABLE IF NOT EXISTS ts_recovery_tokens (
+    id          SERIAL PRIMARY KEY,
+    token       TEXT NOT NULL,
+    account_id  TEXT NOT NULL,
+    email       TEXT NOT NULL,
+    expires_at  TIMESTAMP NOT NULL,
+    used_at     TIMESTAMP,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS ts_recovery_tokens_token_unique ON ts_recovery_tokens (token)`,
 ];
 
 export async function POST(req: Request) {

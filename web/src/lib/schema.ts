@@ -95,6 +95,10 @@ export const accounts = pgTable("ts_accounts", {
   secretHash:  text("secret_hash").notNull(),        // bcrypt of master code
   // Friendly name the user picks via the pen button. Null => we show id.
   displayName: text("display_name"),
+  // Optional recovery email. Set manually in the dashboard OR auto-attached
+  // by the Stripe webhook from whichever email the user checked out with.
+  // Used only to send a magic recovery link when the master code is lost.
+  recoveryEmail: text("recovery_email"),
   firstIp:     text("first_ip"),
   lastIp:      text("last_ip"),
   lastSeenAt:  timestamp("last_seen_at"),
@@ -102,6 +106,21 @@ export const accounts = pgTable("ts_accounts", {
   brandName:   text("brand_name"),
   createdAt:   timestamp("created_at").notNull().defaultNow(),
 });
+
+// One-shot recovery magic links. Clicking consumes the token, mints a fresh
+// master code, and signs the user in. TTL short (30 min) so a leaked email
+// is only usable briefly.
+export const recoveryTokens = pgTable("ts_recovery_tokens", {
+  id:         serial("id").primaryKey(),
+  token:      text("token").notNull(),
+  accountId:  text("account_id").notNull(),
+  email:      text("email").notNull(),
+  expiresAt:  timestamp("expires_at").notNull(),
+  usedAt:     timestamp("used_at"),
+  createdAt:  timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  tokenIdx: uniqueIndex("ts_recovery_tokens_token_unique").on(t.token),
+}));
 
 // Which account most recently used this IP. One row per IP; upserted on every
 // authenticated request so the gate page can silent-login returning visitors.

@@ -11,6 +11,7 @@ import { Logo } from "@/components/Logo";
 import { DashboardActions } from "./actions";
 import { NameEditor } from "./NameEditor";
 import { LoaderCommand } from "./LoaderCommand";
+import { EmailEditor } from "./EmailEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -59,9 +60,18 @@ export default async function Dashboard() {
           </span>
         </div>
         {acc.displayName && (
-          <div className="text-[11px] text-ink-3 font-mono mb-10">id: {acc.id}</div>
+          <div className="text-[11px] text-ink-3 font-mono mb-6">id: {acc.id}</div>
         )}
-        {!acc.displayName && <div className="mb-10" />}
+        {!acc.displayName && <div className="mb-6" />}
+
+        {/* Recovery email — optional but surfaced early so users set it up */}
+        <div className="mb-10 py-4 px-4 sm:px-5 rounded-xl border border-[#1E1E1E] bg-[#0C0C0C]">
+          <EmailEditor initial={acc.recoveryEmail ?? null} />
+          <p className="mt-3 text-[11.5px] text-ink-3 leading-snug">
+            The only way back in if you lose your master code. Auto-attached when you pay via Stripe,
+            or set it yourself above.
+          </p>
+        </div>
 
         {/* Supports + trace cleaner — tighter, only the anti-cheats we actually bypass */}
         <section className="hair-t hair-b py-5 sm:py-6 mb-10">
