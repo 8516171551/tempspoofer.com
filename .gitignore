@@ -11,3 +11,5 @@ obj/
 publish/
 *.user
 drizzle/meta/_journal.json.backup
+tools/
+loader/bin/Protected/

@@ -1,39 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ConfuserEx (post-build) protection profile for the Temporary Spoofer loader.
-  Runs ONLY when build-protected.ps1 is invoked (not on every dotnet build),
-  so day-to-day development stays fast and debuggable.
-
-  Download ConfuserEx: https://github.com/yck1509/ConfuserEx/releases
-  Unzip Confuser.CLI.exe into tools/confuserex/ and run:
-      pwsh ./build-protected.ps1
+  ConfuserEx (Confuser2 fork) profile. WPF-safe: skips `rename` entirely
+  because BAML references types by full name, and reseller branding depends
+  on stable public type names. Keeps every other layer at aggressive.
 -->
 <project outputDir="bin\Protected" baseDir="." xmlns="http://confuser.codeplex.com">
   <module path="bin\Release\loader.exe">
     <rule pattern="true" preset="aggressive" inherit="false">
-      <!-- Core mangling -->
       <protection id="anti ildasm"/>
       <protection id="anti tamper"/>
       <protection id="anti debug"/>
       <protection id="anti dump"/>
-      <protection id="constants"/>     <!-- string + int encryption -->
-      <protection id="ctrl flow"/>     <!-- control-flow flattening -->
-      <protection id="ref proxy"/>     <!-- method reference indirection -->
-      <protection id="rename">
-        <argument name="mode" value="decodable"/>
-        <argument name="renPublic" value="true"/>
-      </protection>
-      <protection id="resources"/>     <!-- encrypt embedded resources -->
-    </rule>
-    <!-- Keep the WPF entry point and its XAML wiring unrenamed so BAML resolves. -->
-    <rule pattern="namespace() = 'TemporarySpoofer' and name() = 'App'" inherit="false">
-      <protection id="rename" action="remove"/>
-    </rule>
-    <rule pattern="inherits('System.Windows.Window')" inherit="false">
-      <protection id="rename" action="remove"/>
-    </rule>
-    <rule pattern="inherits('System.Windows.Markup.IComponentConnector')" inherit="false">
-      <protection id="rename" action="remove"/>
+      <protection id="constants"/>
+      <protection id="ctrl flow"/>
+      <protection id="ref proxy"/>
+      <protection id="resources"/>
     </rule>
   </module>
 </project>
