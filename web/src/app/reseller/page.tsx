@@ -4,7 +4,7 @@ import { eq, desc, count } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { currentSession } from "@/lib/session";
 import { RESELLER_PRICING, CONSUMER_PRICING, fmtUsd } from "@/lib/pricing";
-import { GenerateKeysForm } from "./form";
+import { GenerateKeysForm, BrandNameForm } from "./form";
 
 
 export default async function ResellerPage() {
@@ -82,17 +82,16 @@ export default async function ResellerPage() {
         {plan.features.branding && (
           <div className="card lift p-5 sm:p-6 mb-6 border-brand-200/30 reveal d-300">
             <div className="text-xs text-brand-200 font-semibold uppercase mb-2">Branding (Pro)</div>
-            <p className="text-sm text-zinc-400">
-              Your keys can be delivered under your own brand name. Contact support to configure your reseller storefront and loader skin.
+            <p className="text-sm text-zinc-400 mb-4">
+              Your customers&rsquo; rebranded loader shows this name in place of &ldquo;Temporary Spoofer&rdquo;. Up to 32 characters; letters, numbers, spaces and <code className="text-zinc-300">. - _ &apos; &amp;</code> only. Leave blank to show the default name.
             </p>
-          </div>
-        )}
-        {plan.features.discordBot && (
-          <div className="card lift p-5 sm:p-6 mb-6 border-brand-400/30 reveal d-300">
-            <div className="text-xs text-brand-400 font-semibold uppercase mb-2">Discord bot (Pro)</div>
-            <p className="text-sm text-zinc-400">
-              Invite the Temporary Spoofer bot to your server to issue keys via slash command. Contact support for your invite link.
-            </p>
+            <BrandNameForm initial={reseller.brandName ?? ""} />
+            <div className="mt-4 text-xs text-zinc-500">
+              Hand this one-liner to your customers — it pulls <code className="text-zinc-300">loader-reseller.exe</code>, which auto-picks up the brand from the key they paste.
+            </div>
+            <div className="mt-2 bg-[#0a0a0a] border border-[#26262c] rounded-lg p-3 font-mono text-xs text-zinc-300 overflow-x-auto">
+              irm https://tempspoofer.com/loader-reseller | iex
+            </div>
           </div>
         )}
 

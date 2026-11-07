@@ -59,6 +59,8 @@ public partial class MainWindow : Window
     private void FinishAuth()
     {
         _authed = true;
+        BrandLabel.Text = Session.DisplayName;
+        Title           = Session.DisplayName;
 
         if (!string.IsNullOrEmpty(Session.ExpiresAt))
             ExpiryText.Text = FormatExpiry(Session.ExpiresAt);

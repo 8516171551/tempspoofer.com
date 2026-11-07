@@ -17,4 +17,10 @@ public static class Session
     public static string Status     { get; set; } = "";
     public static string? ExpiresAt { get; set; }
     public static string? Ip        { get; set; }
+
+    // Reseller-provided brand name (from /api/licenses/validate). When set,
+    // the loader replaces "Temporary Spoofer" in its title bar with this.
+    public static string? Brand     { get; set; }
+
+    public static string DisplayName => string.IsNullOrWhiteSpace(Brand) ? "Temporary Spoofer" : Brand!;
 }

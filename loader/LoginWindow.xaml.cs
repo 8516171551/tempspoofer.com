@@ -76,6 +76,7 @@ public partial class LoginWindow : Window
         Session.Tier       = r.Tier ?? "";
         Session.Status     = r.Status ?? "";
         Session.ExpiresAt  = r.ExpiresAt;
+        Session.Brand      = r.Brand;
 
         var main = new MainWindow();
         Application.Current.MainWindow = main;

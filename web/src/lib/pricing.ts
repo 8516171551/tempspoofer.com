@@ -22,11 +22,8 @@ export const RESELLER_PRICING: Record<ResellerTier, {
   features: {
     infiniteKeys: boolean;
     discountCoupon: number;  // percent; 0 if no coupon tier
-    prioritySupport: boolean;
     panelAccess: boolean;
     branding: boolean;
-    discordBot: boolean;
-    resellerHosting: boolean;
   };
 }> = {
   starter: {
@@ -34,13 +31,10 @@ export const RESELLER_PRICING: Record<ResellerTier, {
     priceCents: 4999,
     highlight: false,
     features: {
-      infiniteKeys:    false,
-      discountCoupon:  70,
-      prioritySupport: true,
-      panelAccess:     false,
-      branding:        false,
-      discordBot:      false,
-      resellerHosting: false,
+      infiniteKeys:   false,
+      discountCoupon: 70,
+      panelAccess:    false,
+      branding:       false,
     },
   },
   pro: {
@@ -48,13 +42,10 @@ export const RESELLER_PRICING: Record<ResellerTier, {
     priceCents: 89900,
     highlight: true,
     features: {
-      infiniteKeys:    true,
-      discountCoupon:  0,
-      prioritySupport: true,
-      panelAccess:     true,
-      branding:        true,
-      discordBot:      true,
-      resellerHosting: true,
+      infiniteKeys:   true,
+      discountCoupon: 0,
+      panelAccess:    true,
+      branding:       true,
     },
   },
   enterprise: {
@@ -62,13 +53,10 @@ export const RESELLER_PRICING: Record<ResellerTier, {
     priceCents: 49900,
     highlight: false,
     features: {
-      infiniteKeys:    true,
-      discountCoupon:  0,
-      prioritySupport: true,
-      panelAccess:     true,
-      branding:        false,
-      discordBot:      false,
-      resellerHosting: false,
+      infiniteKeys:   true,
+      discountCoupon: 0,
+      panelAccess:    true,
+      branding:       false,
     },
   },
 };

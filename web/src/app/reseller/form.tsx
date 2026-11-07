@@ -61,3 +61,53 @@ export function GenerateKeysForm({ infinite }: { infinite: boolean }) {
     </form>
   );
 }
+
+export function BrandNameForm({ initial }: { initial: string }) {
+  const router = useRouter();
+  const [brand, setBrand] = useState(initial);
+  const [err, setErr] = useState<string | null>(null);
+  const [ok, setOk]   = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setErr(null); setOk(false); setBusy(true);
+    try {
+      const r = await fetch("/api/reseller/brand", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ brand }),
+      });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        setErr(j.error ?? "Failed to save brand");
+        return;
+      }
+      setOk(true);
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="flex items-end gap-3 flex-wrap">
+      <div className="flex-1 min-w-[220px]">
+        <label className="text-xs text-zinc-400 mb-1 block">Brand name</label>
+        <input
+          className="input"
+          type="text"
+          maxLength={32}
+          placeholder="e.g. NightShade Loader"
+          value={brand}
+          onChange={(e) => setBrand(e.target.value)}
+        />
+      </div>
+      <button type="submit" disabled={busy} className="btn btn-primary">
+        {busy ? "..." : "Save brand"}
+      </button>
+      {ok  && <div className="text-sm text-emerald-400 ml-2">Saved.</div>}
+      {err && <div className="text-sm text-red-400 ml-2">{err}</div>}
+    </form>
+  );
+}

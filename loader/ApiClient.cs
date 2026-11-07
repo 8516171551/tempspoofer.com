@@ -37,14 +37,15 @@ public sealed class ApiClient
             var res = await _http.GetAsync("/api/auth/ip").ConfigureAwait(false);
             var text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (!res.IsSuccessStatusCode)
-                return new AuthResult(false, Json.Field(text, "error") ?? $"HTTP {(int)res.StatusCode}", null, null, null, null);
+                return new AuthResult(false, Json.Field(text, "error") ?? $"HTTP {(int)res.StatusCode}", null, null, null, null, null);
             return new AuthResult(true, null,
                 Json.Field(text, "tier"),
                 Json.Field(text, "status"),
                 Json.Field(text, "expiresAt"),
-                Json.Field(text, "ip"));
+                Json.Field(text, "ip"),
+                null);
         }
-        catch (Exception ex) { return new AuthResult(false, ex.Message, null, null, null, null); }
+        catch (Exception ex) { return new AuthResult(false, ex.Message, null, null, null, null, null); }
     }
 
     public async Task<AuthResult> ValidateAsync(string key)
@@ -56,14 +57,15 @@ public sealed class ApiClient
             var res = await _http.PostAsync("/api/licenses/validate", content).ConfigureAwait(false);
             var text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (!res.IsSuccessStatusCode)
-                return new AuthResult(false, Json.Field(text, "error") ?? $"HTTP {(int)res.StatusCode}", null, null, null, null);
+                return new AuthResult(false, Json.Field(text, "error") ?? $"HTTP {(int)res.StatusCode}", null, null, null, null, null);
             return new AuthResult(true, null,
                 Json.Field(text, "tier"),
                 Json.Field(text, "status"),
                 Json.Field(text, "expiresAt"),
-                null);
+                null,
+                Json.Field(text, "brand"));
         }
-        catch (Exception ex) { return new AuthResult(false, ex.Message, null, null, null, null); }
+        catch (Exception ex) { return new AuthResult(false, ex.Message, null, null, null, null, null); }
     }
 
     public async Task<ClaimResult> ClaimAsync(string? key)
@@ -117,8 +119,9 @@ public readonly struct AuthResult
     public string? Status    { get; }
     public string? ExpiresAt { get; }
     public string? Ip        { get; }
-    public AuthResult(bool ok, string? error, string? tier, string? status, string? expiresAt, string? ip)
-    { Ok = ok; Error = error; Tier = tier; Status = status; ExpiresAt = expiresAt; Ip = ip; }
+    public string? Brand     { get; }
+    public AuthResult(bool ok, string? error, string? tier, string? status, string? expiresAt, string? ip, string? brand)
+    { Ok = ok; Error = error; Tier = tier; Status = status; ExpiresAt = expiresAt; Ip = ip; Brand = brand; }
 }
 
 public readonly struct ClaimResult

@@ -29,6 +29,7 @@ const DDL: string[] = [
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS ts_resellers_slug_unique ON ts_resellers (slug)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS ts_resellers_user_unique ON ts_resellers (user_id)`,
+  `ALTER TABLE ts_resellers ADD COLUMN IF NOT EXISTS brand_name TEXT`,
 
   `CREATE TABLE IF NOT EXISTS ts_licenses (
     id            SERIAL PRIMARY KEY,

@@ -47,8 +47,7 @@
             <Border Grid.Row="0" Background="{StaticResource Panel}" MouseLeftButtonDown="TitleBar_MouseDown" CornerRadius="12,12,0,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
-                        <Ellipse Width="8" Height="8" Fill="{StaticResource Accent}" Margin="0,0,8,0"/>
-                        <TextBlock Text="Temporary Spoofer" FontSize="11" FontWeight="SemiBold" Foreground="#A0A0A8" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="BrandLabel" Text="Temporary Spoofer" FontSize="11" FontWeight="SemiBold" Foreground="#A0A0A8" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Style="{StaticResource ChromeBtn}" Click="MinBtn_Click">

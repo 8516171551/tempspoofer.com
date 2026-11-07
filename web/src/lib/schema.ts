@@ -19,6 +19,10 @@ export const resellers = pgTable("ts_resellers", {
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   tier: text("tier").notNull(),
   slug: text("slug").notNull(),
+  // Public-facing name shown inside the reseller's rebranded loader. Only
+  // honored when the tier's `branding` feature is on. Empty = show the
+  // default "Temporary Spoofer" mark.
+  brandName: text("brand_name"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   status: text("status").notNull().default("active"),
   createdAt: timestamp("created_at").notNull().defaultNow(),

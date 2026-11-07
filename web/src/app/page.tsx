@@ -160,11 +160,8 @@ function Reseller() {
                 ) : (
                   <Feat yes>Infinite Keys</Feat>
                 )}
-                <Feat yes={p.features.prioritySupport}>Priority Support</Feat>
                 <Feat yes={p.features.panelAccess}>Panel Access</Feat>
                 <Feat yes={p.features.branding}>Branding</Feat>
-                <Feat yes={p.features.discordBot}>Discord Bot</Feat>
-                <Feat yes={p.features.resellerHosting}>Reseller Hosting</Feat>
               </ul>
               <a
                 href={`/api/stripe/checkout?kind=reseller&tier=${tier}`}
