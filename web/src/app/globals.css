@@ -46,50 +46,56 @@ a { color: inherit; text-decoration: none; }
 
 ::selection { background: #B2D6F8; color: #000; }
 
-/* ============= GRAIN + HERO AURA ============= */
-/* Full-page grain overlay — SVG noise, blended screen, low opacity. */
+/* ============= GRAPHITE BASE + GRAIN STACK =============
+   The whole site sits on a dark graphite surface: subtle vertical
+   gradient + vignette + a layered noise stack that reads as sanded
+   stone rather than flat #0A0A0A.
+*/
+body {
+  background:
+    radial-gradient(ellipse at 50% 0%, #15151A 0%, #0A0A0A 60%, #060606 100%),
+    #0A0A0A;
+  background-attachment: fixed;
+}
+
+/* Coarse grain pass — chunky, less frequent, visible as surface texture */
 body::before {
   content: "";
   position: fixed; inset: 0; z-index: 100; pointer-events: none;
-  opacity: 0.06;
-  mix-blend-mode: screen;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  background-size: 200px 200px;
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch' seed='7'/><feColorMatrix type='matrix' values='0 0 0 0 0.6  0 0 0 0 0.6  0 0 0 0 0.6  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 360px 360px;
 }
 
-/* Hero aura: huge drifting radial blur, three overlapping blobs */
+/* Fine grain pass — tighter noise for the "sanded" micro texture */
+body::after {
+  content: "";
+  position: fixed; inset: 0; z-index: 101; pointer-events: none;
+  opacity: 0.1;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='2' stitchTiles='stitch' seed='3'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+}
+
+/* Hero aura: single soft brand light coming in top-left, warmer and more subtle */
 .aura {
   position: absolute; inset: 0; z-index: 0; pointer-events: none;
   overflow: hidden;
 }
-.aura::before,
-.aura::after {
+.aura::before {
   content: "";
   position: absolute;
+  width: 920px; height: 920px;
+  left: -280px; top: -320px;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.55;
-}
-.aura::before {
-  width: 780px; height: 780px;
-  left: -200px; top: -240px;
-  background: radial-gradient(circle, #B2D6F8 0%, transparent 60%);
-  animation: drift1 24s ease-in-out infinite alternate;
-}
-.aura::after {
-  width: 620px; height: 620px;
-  right: -140px; top: 120px;
-  background: radial-gradient(circle, #6BAAEB 0%, transparent 60%);
-  opacity: 0.35;
-  animation: drift2 28s ease-in-out infinite alternate;
+  background: radial-gradient(circle, rgba(178,214,248,0.22) 0%, transparent 60%);
+  filter: blur(60px);
+  animation: drift1 32s ease-in-out infinite alternate;
 }
 @keyframes drift1 {
   0%   { transform: translate(0,0) scale(1); }
-  100% { transform: translate(60px, 30px) scale(1.08); }
-}
-@keyframes drift2 {
-  0%   { transform: translate(0,0) scale(1); }
-  100% { transform: translate(-50px, -40px) scale(1.06); }
+  100% { transform: translate(40px, 20px) scale(1.04); }
 }
 
 /* ============= HAIRLINE RULES ============= */

@@ -54,48 +54,52 @@ function Hero() {
   return (
     <section className="relative overflow-hidden hair-b">
       <div className="aura" />
-      <div className="relative max-w-[1240px] mx-auto px-6 pt-20 pb-24 sm:pt-28 sm:pb-36">
+      <div className="relative max-w-[1240px] mx-auto px-6 pt-20 pb-28 sm:pt-28 sm:pb-40">
         <div className="chip reveal mb-10">
-          <span className="chip-dot" /> Live now
+          <span className="chip-dot" /> HWID banned? One command away.
         </div>
 
-        <h1 className="reveal d-100 display text-[56px] sm:text-[88px] md:text-[112px] lg:text-[128px] tracking-[-0.04em] leading-[0.92] max-w-5xl">
-          Spoof your<br/>
-          <span className="text-brand-300">hardware</span>, on a timer.
+        <h1 className="reveal d-100 display text-[56px] sm:text-[88px] md:text-[108px] lg:text-[124px] tracking-[-0.04em] leading-[0.92] max-w-5xl">
+          Walk back in<br/>
+          with <span className="text-brand-300">a new</span> machine.
         </h1>
 
-        <p className="reveal d-200 lead mt-10 max-w-xl">
-          Pay once. A key lands in your email. Paste it into the loader. The spoof rolls back
-          when the window ends — nothing to uninstall.
+        <p className="reveal d-200 lead mt-10 max-w-2xl">
+          Temporary Spoofer rotates every hardware identifier Windows hands out to anti-cheats,
+          launchers, and licensing stacks &mdash; <span className="text-ink">MAC address, disk serial, SMBIOS GUID,
+          TPM endorsement, machine SID, computer name</span> &mdash; then reverts them when your
+          pass expires. No installer. No driver. No residue on disk.
         </p>
 
-        <div className="reveal d-300 mt-12 flex items-center gap-3 flex-wrap">
-          <a href="#pricing" className="btn btn-brand">Buy a pass <span className="arrow">→</span></a>
-          <a href="#loader"  className="btn btn-ghost">Loader command</a>
+        {/* concrete identifier grid — gives the hero density */}
+        <div className="reveal d-300 mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-px bg-[#1C1C1C] border border-[#1C1C1C] rounded-xl overflow-hidden max-w-4xl">
+          {[
+            ["MAC",    "network card"],
+            ["DISK",   "drive serials"],
+            ["SMBIOS", "motherboard GUID"],
+            ["TPM",    "endorsement key"],
+            ["SID",    "machine identity"],
+            ["NAME",   "computer name"],
+          ].map(([k, v]) => (
+            <div key={k} className="bg-[#0B0B0B] px-4 py-5">
+              <div className="font-mono text-[10px] tracking-widest text-ink-3">{k}</div>
+              <div className="text-[13px] text-ink mt-1">{v}</div>
+            </div>
+          ))}
         </div>
 
-        {/* Orbital mark */}
-        <div className="reveal d-500 hidden lg:block absolute right-10 top-20 opacity-90">
-          <div className="relative w-[320px] h-[320px]">
-            <div className="absolute inset-0 rounded-full border border-[#1C1C1C]" />
-            <div className="absolute inset-6 rounded-full border border-[#1C1C1C]" />
-            <div className="absolute inset-12 rounded-full border border-[#1C1C1C]" />
-            <div className="absolute inset-0 orbit">
-              <div className="absolute left-1/2 top-0 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-brand-300 shadow-[0_0_20px_rgba(178,214,248,.9)]" />
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Logo size={110} />
-            </div>
-          </div>
+        <div className="reveal d-400 mt-12 flex items-center gap-3 flex-wrap">
+          <a href="#pricing" className="btn btn-brand">From $2.99 &mdash; buy a pass <span className="arrow">→</span></a>
+          <a href="#loader"  className="btn btn-ghost">How it runs</a>
         </div>
       </div>
 
       {/* bottom meta strip */}
       <div className="hair-t">
-        <div className="max-w-[1240px] mx-auto px-6 py-4 flex items-center justify-between text-[12px] text-ink-3 font-mono">
-          <span>EST&nbsp;2026</span>
-          <span className="hidden sm:inline">Windows&nbsp;10&nbsp;&middot;&nbsp;Windows&nbsp;11</span>
-          <span>one&nbsp;file&nbsp;loader</span>
+        <div className="max-w-[1240px] mx-auto px-6 py-4 flex items-center justify-between text-[11px] text-ink-3 font-mono tracking-wider uppercase">
+          <span>24h &middot; 7d &middot; 30d windows</span>
+          <span className="hidden sm:inline">Windows 10 &middot; 11 (x64)</span>
+          <span>reverts on expiry</span>
         </div>
       </div>
     </section>
@@ -107,21 +111,21 @@ function Hero() {
    ============================================================ */
 function Principles() {
   const items = [
-    { n: "01", t: "No account to make",      b: "Buy it. Open your email. Paste the key. That's the whole login." },
-    { n: "02", t: "Per-session passes",      b: "24 hours, 7 days, 30 days. Pay for exactly what you need." },
-    { n: "03", t: "One file. One command.",  b: "No installer. No dependencies. A PowerShell line pulls the loader into memory." },
-    { n: "04", t: "Rolls back on expiry",    b: "When the window closes, the spoof reverts. No residue left on disk." },
-    { n: "05", t: "Reseller program",        b: "Sell under your own brand. Keys, panel, custom loader." },
-    { n: "06", t: "Windows 10 & 11",         b: "x64 retail builds. No custom kernel, no insider." },
+    { n: "01", t: "No account, no login",     b: "Pay. Check your email. Paste the key once in the loader. That's the whole onboarding." },
+    { n: "02", t: "Rotates everything",       b: "MAC, disk serial, SMBIOS GUID, TPM endorsement, machine SID, computer name. Not just one or two." },
+    { n: "03", t: "Reverts automatically",    b: "When your window ends the loader restores every original value. No manual cleanup." },
+    { n: "04", t: "Runs from memory",         b: "One PowerShell line pulls the loader into %TEMP% and wipes it before the UI even focuses." },
+    { n: "05", t: "No driver to install",     b: "No signed .sys, no kernel component, nothing Windows Defender flags on boot." },
+    { n: "06", t: "Reseller program",         b: "Sell it under your own brand. Panel, keys, custom-branded loader in your customer's taskbar." },
   ];
   return (
     <section id="principles" className="hair-b">
       <div className="max-w-[1240px] mx-auto px-6 py-24 sm:py-32">
         <div className="grid md:grid-cols-[1fr_2fr] gap-10 md:gap-16">
           <div className="reveal">
-            <div className="eyebrow mb-6">[01] — principles</div>
+            <div className="eyebrow mb-6">[01] — how it works</div>
             <h2 className="display text-5xl sm:text-6xl tracking-tight leading-[0.95]">
-              Built&nbsp;to<br/>do&nbsp;one thing<br/>cleanly.
+              Nothing clever.<br/>Just every<br/>identifier.
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-x-10 gap-y-12">
@@ -152,7 +156,7 @@ function Pricing() {
             Pick your<br/>window.
           </h2>
           <p className="reveal d-150 lead md:text-right max-w-md md:ml-auto">
-            One-time payment. No subscription. Key arrives in your email within seconds. Loader opens from a single PowerShell line.
+            One payment, no subscription. Stripe fires the key straight to your inbox. The window starts the moment you press <span className="font-mono text-ink">Spoof</span>, not the moment you pay.
           </p>
         </div>
       </div>
@@ -251,15 +255,15 @@ function Loader() {
       <div className="max-w-[1240px] mx-auto px-6 py-24 sm:py-32">
         <div className="eyebrow reveal mb-6">[04] — loader</div>
         <h2 className="reveal d-50 display text-5xl sm:text-7xl tracking-tight leading-[0.95] mb-10">
-          One line.<br/>No installer.
+          One line.<br/>Zero footprint.
         </h2>
         <div className="reveal d-150 hair-t hair-b py-8 sm:py-12">
           <pre className="font-mono text-[15px] sm:text-[22px] md:text-[28px] text-ink overflow-x-auto">
-            <span className="text-ink-3">$</span>  irm https://tempspoofer.com/loader | iex
+            <span className="text-ink-3">PS&gt;</span> irm https://tempspoofer.com/loader | iex
           </pre>
         </div>
         <p className="reveal d-250 mt-6 text-[13px] text-ink-3 font-mono">
-          Fileless: the exe pulls into %TEMP%, launches, and wipes itself from disk before the window even focuses.
+          The loader downloads to %TEMP%, launches, and removes itself from disk before the window focuses. Nothing lingers after you close it.
         </p>
       </div>
     </section>
