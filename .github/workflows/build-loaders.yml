@@ -1,13 +1,15 @@
 name: Build loaders
 
-# Rebuilds both loader binaries whenever source under loader/ changes,
-# then commits them to web/public/ so the next Vercel deploy ships them.
+# Rebuilds both loader binaries whenever loader source or this workflow itself
+# changes, then commits them to web/public/ so the next Vercel deploy ships them.
+# Skips the bot's own commits via a [skip loaders] marker in the commit message.
 
 on:
   push:
     branches: [main]
     paths:
       - 'loader/**'
+      - '.github/workflows/build-loaders.yml'
   workflow_dispatch:
 
 jobs:
@@ -15,44 +17,48 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
+    # Short-circuit the loop the auto-commit would otherwise trigger.
+    if: "!contains(github.event.head_commit.message, '[skip loaders]')"
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+      # windows-latest already carries the .NET Framework 4.8 targeting pack
+      # and the dotnet CLI. We just need MSBuild on PATH for WPF's XAML pass.
+      - uses: microsoft/setup-msbuild@v2
 
-      - name: Build consumer loader
-        shell: bash
+      - name: Build consumer loader (loader.exe)
+        shell: cmd
+        working-directory: loader
         run: |
-          dotnet publish loader/TemporarySpoofer.csproj \
-            -c Release -r win-x64 \
-            -o loader/publish
+          rmdir /S /Q bin obj 2>nul || ver > nul
+          dotnet build TemporarySpoofer.csproj -c Release || exit /b 1
+          dir bin\Release
 
-      - name: Build reseller loader
+      - name: Stage consumer binary
         shell: bash
-        run: |
-          dotnet publish loader/TemporarySpoofer.csproj \
-            -c Release -r win-x64 \
-            -p:DefineConstants=RESELLER \
-            -p:AssemblyName=loader-reseller \
-            -o loader/publish-reseller
+        run: cp loader/bin/Release/loader.exe web/public/loader.exe
 
-      - name: Copy binaries into web/public
-        shell: bash
+      - name: Build reseller loader (loader-reseller.exe)
+        shell: cmd
+        working-directory: loader
         run: |
-          cp loader/publish/loader.exe             web/public/loader.exe
-          cp loader/publish-reseller/loader-reseller.exe web/public/loader-reseller.exe
+          rmdir /S /Q bin obj 2>nul || ver > nul
+          dotnet build TemporarySpoofer.csproj -c Release -p:DefineConstants=RESELLER -p:AssemblyName=loader-reseller || exit /b 1
+          dir bin\Release
+
+      - name: Stage reseller binary
+        shell: bash
+        run: cp loader/bin/Release/loader-reseller.exe web/public/loader-reseller.exe
 
       - name: Commit & push binaries
         shell: bash
         run: |
           git config user.email "actions@github.com"
-          git config user.name "loader-build-bot"
+          git config user.name  "loader-build-bot"
           git add web/public/loader.exe web/public/loader-reseller.exe
           if git diff --staged --quiet; then
-            echo "No changes to loader binaries."
+            echo "No binary changes — nothing to commit."
             exit 0
           fi
-          git commit -m "chore: auto-rebuild loaders from ${GITHUB_SHA:0:7}"
+          git commit -m "chore(loader): auto-rebuild from ${GITHUB_SHA:0:7} [skip loaders]"
           git push
