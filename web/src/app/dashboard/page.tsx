@@ -108,6 +108,30 @@ export default async function Dashboard() {
         {/* Buy / extend passes */}
         <section className="mb-14">
           <div className="eyebrow mb-3">[{active ? "extend" : "get a pass"}]</div>
+
+          {/* Network-share perk — explicit so nobody misses it */}
+          <div className="mb-5 rounded-xl border border-brand-300/30 bg-brand-300/5 p-4 sm:p-5">
+            <div className="flex items-start gap-3">
+              <div className="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-brand-300/15 flex items-center justify-center">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden>
+                  <circle cx="10" cy="10" r="3.5" stroke="#B2D6F8" strokeWidth="1.6"/>
+                  <path d="M3.5 10 a6.5 6.5 0 0 1 13 0" stroke="#B2D6F8" strokeWidth="1.6" strokeLinecap="round"/>
+                  <path d="M1 10 a9 9 0 0 1 18 0" stroke="#B2D6F8" strokeWidth="1.2" strokeLinecap="round" opacity="0.6"/>
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <div className="text-[14px] sm:text-[15px] text-ink font-medium tracking-tight">
+                  One key works for everyone on your network.
+                </div>
+                <p className="text-[12.5px] text-ink-2 mt-1 leading-snug">
+                  Unlike other providers that lock per machine, our pass binds to your <span className="text-ink">IP</span>.
+                  Buy once &mdash; your household, LAN party, or whole office uses the same key for the entire window.
+                  <span className="text-ink-3"> No seat limits.</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="hair-t">
             {ORDER.map((tier) => {
               const p = CONSUMER_PRICING[tier];
@@ -159,6 +183,16 @@ export default async function Dashboard() {
             <Faq
               q="What anti-cheats does this work on?"
               a="EAC, BattlEye, Vanguard, and Ricochet, plus every retail launcher's own hardware fingerprint. If a game runs on Windows 10/11 x64, the loader covers it."
+            />
+            <Faq
+              q="Can my friends use the same key?"
+              a={<>
+                Yes &mdash; and this is the big win versus other providers. Our passes bind to your
+                <span className="text-ink"> IP</span>, not your machine. Everyone sharing your network
+                (your household, your LAN, your office) auto-logs in with the same key for the entire
+                window. <span className="text-ink">Unlimited devices, no seat limits.</span> Most
+                competitors charge per machine; we charge per window, period.
+              </>}
             />
             <Faq
               q="Will I get banned using this?"
