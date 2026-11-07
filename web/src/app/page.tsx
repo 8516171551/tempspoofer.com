@@ -65,10 +65,10 @@ function Hero() {
         </h1>
 
         <p className="reveal d-200 lead mt-10 max-w-2xl">
-          Temporary Spoofer rotates every hardware identifier Windows hands out to anti-cheats,
-          launchers, and licensing stacks &mdash; <span className="text-ink">MAC address, disk serial, SMBIOS GUID,
-          TPM endorsement, machine SID, computer name</span> &mdash; then reverts them when your
-          pass expires. No installer. No driver. No residue on disk.
+          Rotate every hardware identifier Windows hands out to anti-cheats, launchers, and
+          licensing stacks &mdash; <span className="text-ink">MAC address, disk serial, SMBIOS GUID,
+          TPM endorsement, machine SID, computer name</span>. Pay for a window, press Spoof,
+          walk back in. When the timer ends it reverts automatically.
         </p>
 
         {/* concrete identifier grid — gives the hero density */}
@@ -111,11 +111,11 @@ function Hero() {
    ============================================================ */
 function Principles() {
   const items = [
-    { n: "01", t: "No account, no login",     b: "Pay. Check your email. Paste the key once in the loader. That's the whole onboarding." },
+    { n: "01", t: "No account, no login",     b: "Pay. Check your email. Paste the key once. That's the entire onboarding." },
     { n: "02", t: "Rotates everything",       b: "MAC, disk serial, SMBIOS GUID, TPM endorsement, machine SID, computer name. Not just one or two." },
     { n: "03", t: "Reverts automatically",    b: "When your window ends the loader restores every original value. No manual cleanup." },
-    { n: "04", t: "Runs from memory",         b: "One PowerShell line pulls the loader into %TEMP% and wipes it before the UI even focuses." },
-    { n: "05", t: "No driver to install",     b: "No signed .sys, no kernel component, nothing Windows Defender flags on boot." },
+    { n: "04", t: "One command, no setup",    b: "A single PowerShell line starts it. No installer wizard, no admin elevation prompts past the first UAC." },
+    { n: "05", t: "Windows 10 & 11",          b: "Standard retail x64 builds. Tested on fresh installs, updated installs, and custom partitioned systems." },
     { n: "06", t: "Reseller program",         b: "Sell it under your own brand. Panel, keys, custom-branded loader in your customer's taskbar." },
   ];
   return (
@@ -255,7 +255,7 @@ function Loader() {
       <div className="max-w-[1240px] mx-auto px-6 py-24 sm:py-32">
         <div className="eyebrow reveal mb-6">[04] — loader</div>
         <h2 className="reveal d-50 display text-5xl sm:text-7xl tracking-tight leading-[0.95] mb-10">
-          One line.<br/>Zero footprint.
+          One line.<br/>No wizard.
         </h2>
         <div className="reveal d-150 hair-t hair-b py-8 sm:py-12">
           <pre className="font-mono text-[15px] sm:text-[22px] md:text-[28px] text-ink overflow-x-auto">
@@ -263,7 +263,7 @@ function Loader() {
           </pre>
         </div>
         <p className="reveal d-250 mt-6 text-[13px] text-ink-3 font-mono">
-          The loader downloads to %TEMP%, launches, and removes itself from disk before the window focuses. Nothing lingers after you close it.
+          Paste it into PowerShell after your pass arrives. The loader opens, you press Spoof, you're in.
         </p>
       </div>
     </section>

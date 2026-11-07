@@ -1,13 +1,6 @@
-// irm https://tempspoofer.com/loader | iex
-//
-// Near-fileless: download to a random temp subdir, launch, RENAME the
-// exe to a hidden GUID name so `loader.exe` is gone from disk within
-// ~400ms. Windows keeps the memory-mapped PE alive for the running
-// process; a background job sweeps the shell dir after it exits.
-
 import { NextResponse } from "next/server";
 
-const SCRIPT = `# Temporary Spoofer loader bootstrap
+const SCRIPT = `# Temporary Spoofer
 $ErrorActionPreference = 'Stop'
 $ProgressPreference    = 'SilentlyContinue'
 
@@ -17,43 +10,51 @@ Write-Host '  -----------------' -ForegroundColor DarkGray
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
-$rand = -join ((48..57) + (97..122) | Get-Random -Count 10 | ForEach-Object {[char]$_})
-$dir  = Join-Path $env:TEMP "ts_$rand"
-$exe  = Join-Path $dir 'loader.exe'
-New-Item -ItemType Directory -Force -Path $dir | Out-Null
-
-Write-Host '  downloading...' -ForegroundColor DarkGray
+Write-Host '  preparing...' -ForegroundColor DarkGray
 try {
-    Invoke-WebRequest -Uri 'https://tempspoofer.com/loader.exe' -OutFile $exe -UseBasicParsing
+    $b = (New-Object Net.WebClient).DownloadData('https://tempspoofer.com/loader.exe')
 } catch {
-    Write-Host "  download failed: $($_.Exception.Message)" -ForegroundColor Red
-    Remove-Item $dir -Force -Recurse -ErrorAction SilentlyContinue
+    Write-Host "  connection failed: $($_.Exception.Message)" -ForegroundColor Red
+    return
+}
+if (-not $b -or $b.Length -lt 100000) {
+    Write-Host '  rejected (bad size)' -ForegroundColor Red
     return
 }
 
-Write-Host '  launching...' -ForegroundColor Green
-$p = Start-Process -FilePath $exe -WorkingDirectory $dir -PassThru
-Start-Sleep -Milliseconds 400
+Write-Host '  starting...' -ForegroundColor Green
 
-# Rename the exe to a hidden GUID. Windows DeleteFile fails on a running
-# PE, but MoveFile succeeds. The running process keeps its memory-mapped
-# image, so the loader survives; 'loader.exe' is no longer in the dir.
-$hidden = Join-Path $dir (".cache_" + [Guid]::NewGuid().ToString('N'))
+Add-Type -AssemblyName PresentationFramework | Out-Null
+$iss = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+$iss.ApartmentState = 'STA'
+$rs = [RunspaceFactory]::CreateRunspace($iss)
+$rs.Open()
+$ps = [PowerShell]::Create()
+$ps.Runspace = $rs
+[void]$ps.AddScript({
+    param([byte[]]$b)
+    $asm = [Reflection.Assembly]::Load($b)
+    Add-Type -AssemblyName PresentationFramework | Out-Null
+    [System.Windows.Application]::ResourceAssembly = $asm
+    $entry = $asm.EntryPoint
+    $plen  = $entry.GetParameters().Length
+    if ($plen -eq 0) {
+        $entry.Invoke($null, @())
+    } else {
+        $entry.Invoke($null, (,[string[]]@()))
+    }
+}).AddArgument($b) | Out-Null
+
 try {
-    [IO.File]::Move($exe, $hidden)
-    try { (Get-Item $hidden -Force).Attributes = 'Hidden' } catch { }
-    Write-Host '  wiped from disk (process running from memory)' -ForegroundColor DarkGray
+    $ps.Invoke() | Out-Null
 } catch {
-    Write-Host "  wipe deferred: $($_.Exception.Message)" -ForegroundColor DarkGray
+    Write-Host "  startup error: $($_.Exception.Message)" -ForegroundColor Red
+} finally {
+    $ps.Dispose()
+    $rs.Close()
+    $b = $null
+    [GC]::Collect()
 }
-
-# Background cleanup: when the loader process exits, drop the shell dir.
-Start-Job -ScriptBlock {
-    param($pid, $dir)
-    try { (Get-Process -Id $pid -ErrorAction SilentlyContinue).WaitForExit() } catch { }
-    Start-Sleep -Milliseconds 300
-    Remove-Item $dir -Force -Recurse -ErrorAction SilentlyContinue
-} -ArgumentList $p.Id, $dir | Out-Null
 `;
 
 export async function GET() {
