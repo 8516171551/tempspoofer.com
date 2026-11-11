@@ -142,8 +142,12 @@ export function GateClient() {
               I already have a code
             </button>
 
-            <p className="mt-8 text-center text-[12px] text-ink-3 font-mono">
+            <p className="mt-8 text-center text-[12px] text-ink-3 font-mono flex items-center justify-center gap-4 flex-wrap">
               <Link href="/learn" className="underline underline-offset-4">What is this?</Link>
+              <span className="text-ink-3/50">&middot;</span>
+              <Link href="/compare" className="underline underline-offset-4 text-red-400/90 hover:text-red-300">
+                Why not Verse?
+              </Link>
             </p>
           </section>
         )}
